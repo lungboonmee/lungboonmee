@@ -39,13 +39,11 @@ app.get('/', async (req, res) => {
     }
 });
 
-// 5. ระบบบันทึกงานใหม่ (API สำหรับหน้า "แจ้งงานใหม่")
+// 5. ระบบบันทึกงานใหม่ (API สำหรับลูกค้าแจ้งงานหน้าแรก)
 app.post('/api/report-job', async (req, res) => {
     try {
-        // รับค่าจากฟอร์มหน้าแรก
         const { customer_name, phone, detail, is_member } = req.body;
 
-        // บันทึกลงตาราง 'jobs'
         const { data, error } = await supabase
             .from('jobs')
             .insert([
@@ -53,15 +51,14 @@ app.post('/api/report-job', async (req, res) => {
                     customer_name: customer_name, 
                     phone: phone, 
                     detail: detail, 
-                    is_member: is_member === 'on', // ถ้าติ๊กถูกจะเป็น true
-                    status: 'Pending', // ตั้งค่าเริ่มต้นเป็น "รอคิว"
+                    is_member: is_member === 'on', 
+                    status: 'Pending', 
                     created_at: new Date()
                 }
             ]);
 
         if (error) throw error;
 
-        // เมื่อบันทึกสำเร็จ ให้เด้งการแจ้งเตือนและกลับไปหน้าแรก
         res.send(`
             <script>
                 alert('ส่งข้อมูลให้ลุงบุญมีเรียบร้อยแล้วครับ! ลุงจะติดต่อกลับไปโดยเร็วที่สุด');
@@ -92,17 +89,36 @@ app.get('/dashboard', async (req, res) => {
     }
 });
 
-// 7. หน้าสำหรับเพิ่มงานใหม่ (หน้า Admin เดิม)
+// 7. API สำหรับอัปเดตสถานะงาน (ใช้กับปุ่มในหน้า Dashboard)
+app.post('/api/update-status', async (req, res) => {
+    try {
+        const { jobId, newStatus } = req.body;
+
+        const { error } = await supabase
+            .from('jobs')
+            .update({ status: newStatus })
+            .eq('id', jobId); // อัปเดตงานที่ ID ตรงกัน
+
+        if (error) throw error;
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error('❌ Update Error:', err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 8. หน้าสำหรับเพิ่มงานใหม่ (หน้า Admin เดิม)
 app.get('/admin', (req, res) => {
     res.render('admin'); 
 });
 
-// 8. จัดการกรณีเข้าหน้าเว็บที่ไม่มีอยู่จริง (404 Not Found)
+// 9. จัดการกรณีเข้าหน้าเว็บที่ไม่มีอยู่จริง (404 Not Found)
 app.use((req, res) => {
     res.status(404).send('ไม่พบหน้าที่ลุงต้องการครับ ลองเช็กตัวสะกด URL อีกทีนะ');
 });
 
-// 9. เริ่มต้น Server (สำหรับการทดสอบในเครื่องตัวเอง)
+// 10. เริ่มต้น Server (สำหรับการทดสอบในเครื่องตัวเอง)
 if (process.env.NODE_ENV !== 'production') {
     app.listen(port, () => {
         console.log(`🚀 แอปของลุงทำงานแล้วที่ http://localhost:${port}`);

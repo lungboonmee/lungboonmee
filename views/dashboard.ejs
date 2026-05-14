@@ -16,11 +16,11 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-bold text-amber-400">แผงควบคุม (Admin)</h1>
+                <h1 class="text-3xl font-bold text-amber-400">แผงควบคุม (Admin Dashboard)</h1>
                 <p class="text-slate-400">จัดการคิวงานลุงบุญมี</p>
             </div>
             <div class="space-x-4">
-                <a href="/" class="text-sm hover:text-amber-400 transition-colors">ดูหน้าเว็บลูกค้า</a>
+                <a href="/" class="text-sm hover:text-amber-400 transition-colors">หน้าแรก</a>
                 <a href="/admin" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-bold transition-all">เพิ่มงานใหม่</a>
             </div>
         </div>
@@ -31,35 +31,57 @@
                 <thead class="bg-white/5 text-amber-400 border-b border-white/10">
                     <tr>
                         <th class="p-4">วันที่</th>
-                        <th class="p-4 text-sm font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-600">รายละเอียดงาน / ลูกค้า</th>
+                        <th class="p-4">รายละเอียดงาน / ลูกค้า</th>
                         <th class="p-4">สถานะ</th>
                         <th class="p-4 text-center">การจัดการ</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-white/5">
-                    <% jobs.forEach(job => { %>
-                    <tr class="hover:bg-white/5 transition-colors">
-                        <td class="p-4 text-sm text-slate-400">
-                            <%= new Date(job.created_at).toLocaleDateString('th-TH') %>
-                        </td>
-                        <td class="p-4">
-                            <div class="font-semibold text-lg"><%= job.detail %></div>
-                            <div class="text-sm text-slate-400">👤 <%= job.customer_name %> | 📞 <%= job.phone %></div>
-                        </td>
-                        <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-bold 
-                                <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 
-                                   job.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400' %>">
-                                <%= job.status === 'In-Progress' ? 'กำลังทำ' : 
-                                   job.status === 'Completed' ? 'เสร็จแล้ว' : 'รอคิว' %>
-                            </span>
-                        </td>
-                        <td class="p-4 text-center space-x-2">
-                            <button class="text-sm bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white px-3 py-1 rounded-md transition-all">เริ่มงาน</button>
-                            <button class="text-sm bg-white/5 hover:bg-white/20 text-slate-300 px-3 py-1 rounded-md transition-all text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-600">แก้ไข</button>
-                        </td>
-                    </tr>
-                    <% }); %>
+                    <% if (jobs && jobs.length > 0) { %>
+                        <% jobs.forEach(job => { %>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-4 text-sm text-slate-400">
+                                <%= new Date(job.created_at).toLocaleDateString('th-TH') %>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-semibold text-lg text-white"><%= job.detail %></div>
+                                <div class="text-sm text-slate-400">👤 <%= job.customer_name %> | 📞 <%= job.phone %></div>
+                                <% if (job.is_member) { %>
+                                    <span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded border border-amber-500/30 mt-1 inline-block">Member</span>
+                                <% } %>
+                            </td>
+                            <td class="p-4">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold 
+                                    <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 
+                                       job.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400' %>">
+                                    <%= job.status === 'In-Progress' ? 'กำลังทำ' : 
+                                       job.status === 'Completed' ? 'เสร็จแล้ว' : 'รอคิว' %>
+                                </span>
+                            </td>
+                            <td class="p-4 text-center space-x-2">
+                                <% if (job.status === 'Pending') { %>
+                                    <button onclick="updateStatus('<%= job.id %>', 'In-Progress')" 
+                                            class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition-all shadow-lg shadow-blue-500/20">
+                                        เริ่มงาน
+                                    </button>
+                                <% } else if (job.status === 'In-Progress') { %>
+                                    <button onclick="updateStatus('<%= job.id %>', 'Completed')" 
+                                            class="text-sm bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-md transition-all shadow-lg shadow-emerald-500/20">
+                                        จบงาน
+                                    </button>
+                                <% } %>
+                                
+                                <button class="text-sm bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-1 rounded-md transition-all">
+                                    แก้ไข
+                                </button>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="p-10 text-center text-slate-500">ยังไม่มีรายการงานเข้ามาครับลุง</td>
+                        </tr>
+                    <% } %>
                 </tbody>
             </table>
         </div>
@@ -68,5 +90,36 @@
             © 2026 ระบบจัดการงานรับเหมาลุงบุญมี - Node.js + Supabase
         </footer>
     </div>
+
+    <!-- Script สำหรับอัปเดตสถานะ -->
+    <script>
+        async function updateStatus(jobId, newStatus) {
+            const confirmMsg = newStatus === 'In-Progress' ? 'ยืนยันการเริ่มงานนี้ใช่ไหมครับลุง?' : 'งานนี้เสร็จเรียบร้อยแล้วใช่ไหมครับ?';
+            
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const response = await fetch('/api/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ jobId, newStatus })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // รีโหลดหน้าเพื่อให้เห็นข้อมูลที่อัปเดต
+                    window.location.reload();
+                } else {
+                    alert('เกิดข้อผิดพลาดในการอัปเดตครับ: ' + result.error);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ครับลุง ลองใหม่อีกครั้งนะ');
+            }
+        }
+    </script>
 </body>
 </html>
