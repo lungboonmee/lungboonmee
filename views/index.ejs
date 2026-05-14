@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลุงบุญมี รับเหมา | ระบบแจ้งงาน</title>
+    <!-- ใช้ Tailwind CSS เพื่อความสวยหรู -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #020617; color: #f8fafc; }
+        .gold-gradient { background: linear-gradient(to right, #d4af37, #f1c40f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-gold { background: linear-gradient(to bottom right, #d4af37, #996515); transition: 0.3s; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold gold-gradient mb-2">LUNG BOONMEE</h1>
+            <p class="text-slate-400">Construction & Maintenance Management</p>
+        </header>
+
+        <!-- Main Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl">
+            <h2 class="text-2xl font-semibold mb-6 border-l-4 border-yellow-600 pl-4">แจ้งซ่อม / เสนองาน</h2>
+            
+            <form action="/api/jobs/create" method="POST" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">ชื่อ-นามสกุล</label>
+                        <input type="text" name="name" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-yellow-600">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">เบอร์โทรศัพท์</label>
+                        <input type="tel" name="phone" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-yellow-600">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-slate-400 mb-2">รายละเอียดงาน</label>
+                    <textarea name="detail" rows="4" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-yellow-600" placeholder="ระบุงานที่ต้องการให้ลุงบุญมีดูแล..."></textarea>
+                </div>
+
+                <button type="submit" class="w-full btn-gold text-slate-900 font-bold py-4 rounded-xl text-lg">
+                    ส่งข้อมูลแจ้งงาน
+                </button>
+            </form>
+
+            <!-- สมัครสมาชิก -->
+            <div class="mt-10 pt-6 border-t border-slate-800 text-center">
+                <p class="text-slate-400 mb-4">หากเป็นสมาชิก ลุงจะอัพเดทสถานะงานให้ดูแบบเรียลไทม์!</p>
+                <a href="/register" class="text-yellow-500 hover:text-yellow-400 font-semibold underline underline-offset-4">
+                    สมัครสมาชิกที่นี่
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
