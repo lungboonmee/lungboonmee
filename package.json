@@ -2,10 +2,10 @@
   "name": "lungboonmee",
   "version": "1.0.0",
   "description": "ระบบจัดการงานรับเหมาลุงบุญมี - Node.js + Express + Supabase",
-  "main": "server.js",
+  "main": "server.cjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node server.cjs",
+    "dev": "nodemon server.cjs",
     "build": "echo 'No build step required for this Node project'"
   },
   "dependencies": {
