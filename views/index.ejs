@@ -90,10 +90,20 @@
                 <% if (queue && queue.length > 0) { %>
                     <% queue.forEach(job => { %>
                         <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
+                            <!-- ส่วนแก้ไข: แสดงคำว่า กำลังดำเนินการ / รอคิว / เสร็จเรียบร้อย ให้ถูกต้อง -->
                             <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider
-                                <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 'bg-amber-500/20 text-amber-400' %>">
-                                <%= job.status === 'In-Progress' ? 'กำลังดำเนินการ' : 'รอคิว' %>
+                                <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 
+                                   job.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400' %>">
+                                
+                                <% if (job.status === 'In-Progress') { %>
+                                    กำลังดำเนินการ
+                                <% } else if (job.status === 'Completed') { %>
+                                    เสร็จเรียบร้อย
+                                <% } else { %>
+                                    รอคิว
+                                <% } %>
                             </span>
+
                             <h3 class="text-xl font-semibold mt-4 mb-2 text-white"><%= job.detail %></h3>
                             <p class="text-white/50 text-sm">ลูกค้า: <%= job.customer_name %></p>
                         </div>
