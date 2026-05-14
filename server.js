@@ -1,56 +1,60 @@
-require('dotenv').config();
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
+const { createClient } = require('@supabase/supabase-base-js');
+require('dotenv').config();
+
 const app = express();
+const port = process.env.PORT || 3000;
 
-// เชื่อมต่อ Supabase
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
+// 1. ตั้งค่าการเข้าถึงโฟลเดอร์ views ให้แม่นยำที่สุด (แก้ปัญหา Lookup View)
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
+
+// 2. ตั้งค่าให้แอปอ่านไฟล์ Static (CSS, รูปภาพ) จากโฟลเดอร์ public
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// --- ROUTES สำหรับหน้าเว็บ ---
+// 3. เชื่อมต่อ Supabase โดยใช้ค่าจาก Environment Variables
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 1. หน้าแรกและหน้าแจ้งงาน
-app.get('/', (req, res) => {
-    res.render('index');
+// 4. หน้าแรก (Index) - ดึงข้อมูลงานซ่อมมาโชว์
+app.get('/', async (req, res) => {
+    try {
+        // ดึงข้อมูลจากตาราง 'jobs' (หรือชื่อตารางที่ลุงตั้งไว้ใน Supabase)
+        const { data: jobs, error } = await supabase
+            .from('jobs') 
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        res.render('index', { jobs: jobs || [] });
+    } catch (err) {
+        console.error('Error fetching jobs:', err);
+        res.status(500).send('เกิดข้อผิดพลาดในการดึงข้อมูล: ' + err.message);
+    }
 });
 
-// 2. หน้าแอดมิน: ดึงข้อมูลงานจาก Supabase มาแสดง
-app.get('/admin', async (req, res) => {
-    const { data: jobs, error } = await supabase
-        .from('jobs') // ตรวจสอบชื่อตารางใน Supabase ของคุณ
-        .select('*')
-        .order('created_at', { ascending: false });
-    
-    res.render('admin', { jobs });
+// 5. หน้า Dashboard สำหรับ Admin
+app.get('/dashboard', async (req, res) => {
+    try {
+        const { data: jobs, error } = await supabase
+            .from('jobs')
+            .select('*');
+        
+        if (error) throw error;
+        res.render('dashboard', { jobs: jobs || [] });
+    } catch (err) {
+        res.status(500).send('Error loading dashboard');
+    }
 });
 
-// --- API สำหรับฟีเจอร์หลัก ---
-
-// สมาชิกหรือคนทั่วไปแจ้งงาน
-app.post('/api/jobs/request', async (req, res) => {
-    const { name, phone, detail } = req.body;
-    const { error } = await supabase
-        .from('jobs')
-        .insert([{ customer_name: name, phone, detail, status: 'Pending' }]);
-
-    if (error) return res.status(500).send("เกิดข้อผิดพลาด");
-    res.redirect('/?success=true');
+// 6. เริ่มต้น Server
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
 
-// แอดมินเสนอราคาไปยังสมาชิก
-app.post('/api/admin/quote', async (req, res) => {
-    const { jobId, price } = req.body;
-    await supabase
-        .from('jobs')
-        .update({ price: price, status: 'Quoted' })
-        .eq('id', jobId);
-    
-    res.redirect('/admin');
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`App running on http://localhost:${PORT}`));
+module.exports = app; // บรรทัดนี้สำคัญสำหรับการรันบน Vercel ครับ
