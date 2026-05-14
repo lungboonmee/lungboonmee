@@ -3,55 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ระบบจัดการงานรับเหมาลุงบุญมี</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>แผงควบคุม - ลุงบุญมี รับเหมา</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #0f172a; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
 </head>
-<body>
-    <header>
-        <h1>แผงควบคุม (Admin Dashboard)</h1>
-        <nav>
-            <a href="/">หน้าแรก</a>
-            <a href="/admin">เพิ่มงานใหม่</a>
-        </nav>
-    </header>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-amber-400">แผงควบคุม (Admin)</h1>
+                <p class="text-slate-400">จัดการคิวงานลุงบุญมี</p>
+            </div>
+            <div class="space-x-4">
+                <a href="/" class="text-sm hover:text-amber-400 transition-colors">ดูหน้าเว็บลูกค้า</a>
+                <a href="/admin" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-bold transition-all">เพิ่มงานใหม่</a>
+            </div>
+        </div>
 
-    <main>
-        <section>
-            <h2>รายการงานทั้งหมด</h2>
-            <table>
-                <thead>
+        <!-- ตารางรายการงาน -->
+        <div class="glass rounded-3xl overflow-hidden shadow-2xl">
+            <table class="w-full text-left">
+                <thead class="bg-white/5 text-amber-400 border-b border-white/10">
                     <tr>
-                        <th>วันที่</th>
-                        <th>ชื่องาน / ลูกค้า</th>
-                        <th>สถานะ</th>
-                        <th>การจัดการ</th>
+                        <th class="p-4">วันที่</th>
+                        <th class="p-4 text-sm font-medium px-3 py-1 rounded-full bg-amber-100 text-amber-600">รายละเอียดงาน / ลูกค้า</th>
+                        <th class="p-4">สถานะ</th>
+                        <th class="p-4 text-center">การจัดการ</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- ข้อมูลจะถูกส่งมาจาก server.cjs -->
-                    <% if (jobs && jobs.length > 0) { %>
-                        <% jobs.forEach(function(job) { %>
-                            <tr>
-                                <td><%= job.created_at ? new Date(job.created_at).toLocaleDateString('th-TH') : '-' %></td>
-                                <td><%= job.title %></td>
-                                <td><span class="status-badge"><%= job.status || 'รอดำเนินการ' %></span></td>
-                                <td>
-                                    <button onclick="alert('ฟีเจอร์แก้ไขกำลังพัฒนาครับลุง')">แก้ไข</button>
-                                </td>
-                            </tr>
-                        <% }); %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="4" style="text-align:center;">ยังไม่มีข้อมูลงานในระบบครับ</td>
-                        </tr>
-                    <% } %>
+                <tbody class="divide-y divide-white/5">
+                    <% jobs.forEach(job => { %>
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-4 text-sm text-slate-400">
+                            <%= new Date(job.created_at).toLocaleDateString('th-TH') %>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-semibold text-lg"><%= job.detail %></div>
+                            <div class="text-sm text-slate-400">👤 <%= job.customer_name %> | 📞 <%= job.phone %></div>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold 
+                                <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 
+                                   job.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400' %>">
+                                <%= job.status === 'In-Progress' ? 'กำลังทำ' : 
+                                   job.status === 'Completed' ? 'เสร็จแล้ว' : 'รอคิว' %>
+                            </span>
+                        </td>
+                        <td class="p-4 text-center space-x-2">
+                            <button class="text-sm bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white px-3 py-1 rounded-md transition-all">เริ่มงาน</button>
+                            <button class="text-sm bg-white/5 hover:bg-white/20 text-slate-300 px-3 py-1 rounded-md transition-all text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-600">แก้ไข</button>
+                        </td>
+                    </tr>
+                    <% }); %>
                 </tbody>
             </table>
-        </section>
-    </main>
+        </div>
 
-    <footer>
-        <p>&copy; 2026 ระบบจัดการงานรับเหมาลุงบุญมี - Node.js + Supabase</p>
-    </footer>
+        <footer class="mt-10 text-center text-slate-500 text-xs">
+            © 2026 ระบบจัดการงานรับเหมาลุงบุญมี - Node.js + Supabase
+        </footer>
+    </div>
 </body>
 </html>
