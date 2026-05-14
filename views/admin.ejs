@@ -3,35 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | LUNG BOONMEE</title>
+    <title>ระบบหลังบ้าน - ลุงบุญมี รับเหมา</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; }
+        .sidebar { background: #1e293b; color: white; }
+    </style>
 </head>
-<body class="bg-[#020617] text-white p-4">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold text-yellow-500 mb-8 border-b border-slate-800 pb-4">ระบบบริหารจัดการงาน</h1>
-        
-        <div class="grid gap-6">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-lg">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <span class="bg-yellow-600/20 text-yellow-500 text-xs px-2 py-1 rounded-md mb-2 inline-block font-bold">รอเสนอราคา</span>
-                        <h3 class="text-xl font-semibold">งานซ่อมหลังคา - คุณสมชาย</h3>
-                    </div>
-                    <p class="text-slate-500 text-sm">14 พ.ค. 2567</p>
-                </div>
-                <p class="text-slate-400 text-sm mb-6">รายละเอียด: มีน้ำรั่วบริเวณรอยต่อหลังคาด้านหน้าบ้าน...</p>
-                
-                <form action="/api/admin/quote" method="POST" class="flex gap-4 items-end">
-                    <div class="flex-1">
-                        <label class="text-xs text-slate-500 mb-1 block">ระบุราคาเสนอ (บาท)</label>
-                        <input type="number" name="price" placeholder="0.00" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
-                    </div>
-                    <button type="submit" class="bg-yellow-600 hover:bg-yellow-500 text-slate-900 font-bold px-6 py-2 rounded-lg transition-colors">
-                        ส่งราคาเสนอ
-                    </button>
-                </form>
+<body class="flex min-h-screen">
+
+    <!-- 1. Sidebar (เมนูจัดการ) -->
+    <aside class="w-64 sidebar hidden md:block">
+        <div class="p-6 text-2xl font-bold border-b border-slate-700">ลุงบุญมี Admin</div>
+        <nav class="mt-6 p-4 space-y-2">
+            <a href="/admin" class="block py-2.5 px-4 rounded transition bg-blue-600">🏠 แดชบอร์ด</a>
+            <a href="#" class="block py-2.5 px-4 rounded transition hover:bg-slate-700">👥 สมาชิก</a>
+            <a href="#" class="block py-2.5 px-4 rounded transition hover:bg-slate-700">💰 บัญชี/รายได้</a>
+            <a href="/" class="block py-2.5 px-4 rounded transition hover:bg-slate-700 mt-10 text-slate-400">🌐 ไปหน้าเว็บ</a>
+        </nav>
+    </aside>
+
+    <!-- 2. Main Content -->
+    <main class="flex-1 p-4 md:p-10">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-semibold">รายการแจ้งงานทั้งหมด</h1>
+            <div class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm">
+                วันที่ปัจจุบัน: <%= new Date().toLocaleDateString('th-TH') %>
             </div>
         </div>
-    </div>
+
+        <!-- ตารางรายการงาน -->
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">ลูกค้า</th>
+                        <th class="px-6 py-4 font-semibold">รายละเอียดงาน</th>
+                        <th class="px-6 py-4 font-semibold text-center">สถานะ</th>
+                        <th class="px-6 py-4 font-semibold text-right">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <% jobs.forEach(job => { %>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-slate-900"><%= job.customer_name %></div>
+                            <div class="text-xs text-slate-400"><%= job.phone %></div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600"><%= job.detail %></td>
+                        <td class="px-6 py-4 text-center">
+                            <% if (job.status === 'Pending') { %>
+                                <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">รอประเมิน</span>
+                            <% } else if (job.status === 'Quoted') { %>
+                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">เสนอราคาแล้ว</span>
+                            <% } else { %>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">กำลังดำเนินการ</span>
+                            <% } %>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <!-- ฟอร์มส่งราคา (เฉพาะงานที่ยังไม่เสนอราคา) -->
+                            <% if (job.status === 'Pending') { %>
+                                <form action="/api/admin/offer-price" method="POST" class="flex items-center justify-end space-x-2">
+                                    <input type="hidden" name="job_id" value="<%= job.id %>">
+                                    <input type="number" name="price" placeholder="เสนอราคา" required class="w-24 p-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <button type="submit" class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs hover:bg-slate-800 transition">ส่งราคา</button>
+                                </form>
+                            <% } else { %>
+                                <span class="text-xs text-slate-400 font-medium">ราคา: ฿<%= job.price.toLocaleString() %></span>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
 </body>
 </html>

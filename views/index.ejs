@@ -3,58 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลุงบุญมี รับเหมา | ระบบแจ้งงาน</title>
-    <!-- ใช้ Tailwind CSS เพื่อความสวยหรู -->
+    <title>ลุงบุญมี รับเหมา - บริการงานช่างระดับมืออาชีพ</title>
+    <!-- ใช้ Tailwind CSS เพื่อความสวยหรูและจัดระเบียบง่าย -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #020617; color: #f8fafc; }
-        .gold-gradient { background: linear-gradient(to right, #d4af37, #f1c40f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-gold { background: linear-gradient(to bottom right, #d4af37, #996515); transition: 0.3s; }
-        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); }
+        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold gold-gradient mb-2">LUNG BOONMEE</h1>
-            <p class="text-slate-400">Construction & Maintenance Management</p>
-        </header>
+<body class="text-slate-800">
 
-        <!-- Main Form -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl">
-            <h2 class="text-2xl font-semibold mb-6 border-l-4 border-yellow-600 pl-4">แจ้งซ่อม / เสนองาน</h2>
-            
-            <form action="/api/jobs/create" method="POST" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- 1. Landing Page / Hero Section -->
+    <header class="relative h-[60vh] flex items-center justify-center text-white overflow-hidden bg-slate-900">
+        <div class="absolute inset-0 opacity-40">
+            <img src="/images/hero-bg.jpg" alt="Construction Work" class="w-full h-full object-cover">
+        </div>
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">ลุงบุญมี รับเหมา</h1>
+            <p class="text-lg md:text-xl font-light mb-8 opacity-90">สร้างสรรค์งานช่างด้วยความประณีต ในราคาที่เป็นธรรม</p>
+            <a href="#request-form" class="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-full font-semibold transition-all shadow-lg">
+                ส่งใบแจ้งงาน/ประเมินราคา
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. หน้าแสดงคิวงาน (Public Queue) -->
+    <section class="max-w-6xl mx-auto py-16 px-4">
+        <h2 class="text-3xl font-semibold text-center mb-10">คิวงานที่กำลังดำเนินการ</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <% queue.forEach(job => { %>
+                <div class="glass p-6 rounded-2xl card-shadow border-t-4 
+                    <%= job.status === 'In-Progress' ? 'border-blue-500' : 'border-amber-400' %>">
+                    <span class="text-sm font-medium px-3 py-1 rounded-full 
+                        <%= job.status === 'In-Progress' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600' %>">
+                        <%= job.status === 'In-Progress' ? 'กำลังดำเนินการ' : 'รอคิว' %>
+                    </span>
+                    <h3 class="text-xl font-semibold mt-4 mb-2"><%= job.detail %></h3>
+                    <p class="text-slate-500 text-sm">ลูกค้า: <%= job.customer_name %></p>
+                </div>
+            <% }); %>
+        </div>
+    </section>
+
+    <!-- 3. หน้าแจ้งงาน (Request Form) -->
+    <section id="request-form" class="bg-white py-16">
+        <div class="max-w-2xl mx-auto px-4">
+            <div class="glass p-8 rounded-3xl card-shadow border border-slate-100">
+                <h2 class="text-3xl font-semibold mb-6 text-center">แจ้งงานใหม่</h2>
+                <form action="/api/report-job" method="POST" class="space-y-4">
                     <div>
-                        <label class="block text-sm text-slate-400 mb-2">ชื่อ-นามสกุล</label>
-                        <input type="text" name="name" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-yellow-600">
+                        <label class="block text-sm font-medium mb-1">ชื่อของคุณ</label>
+                        <input type="text" name="customer_name" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm text-slate-400 mb-2">เบอร์โทรศัพท์</label>
-                        <input type="tel" name="phone" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-yellow-600">
+                        <label class="block text-sm font-medium mb-1">เบอร์โทรศัพท์</label>
+                        <input type="tel" name="phone" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 outline-none">
                     </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm text-slate-400 mb-2">รายละเอียดงาน</label>
-                    <textarea name="detail" rows="4" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:outline-none focus:border-yellow-600" placeholder="ระบุงานที่ต้องการให้ลุงบุญมีดูแล..."></textarea>
-                </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">รายละเอียดงาน</label>
+                        <textarea name="detail" rows="4" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 outline-none" placeholder="เช่น ทาสีห้องนอน, ซ่อมท่อประปา..."></textarea>
+                    </div>
+                    
+                    <!-- ส่วนสมัครสมาชิก -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="is_member" class="w-5 h-5 accent-amber-500">
+                            <span class="text-sm font-medium text-slate-600">สมัครสมาชิกเพื่อติดตามสถานะงานได้ที่นี่</span>
+                        </label>
+                    </div>
 
-                <button type="submit" class="w-full btn-gold text-slate-900 font-bold py-4 rounded-xl text-lg">
-                    ส่งข้อมูลแจ้งงาน
-                </button>
-            </form>
-
-            <!-- สมัครสมาชิก -->
-            <div class="mt-10 pt-6 border-t border-slate-800 text-center">
-                <p class="text-slate-400 mb-4">หากเป็นสมาชิก ลุงจะอัพเดทสถานะงานให้ดูแบบเรียลไทม์!</p>
-                <a href="/register" class="text-yellow-500 hover:text-yellow-400 font-semibold underline underline-offset-4">
-                    สมัครสมาชิกที่นี่
-                </a>
+                    <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold hover:bg-slate-800 transition-colors shadow-lg">
+                        ส่งข้อมูลให้ลุงบุญมี
+                    </button>
+                </form>
             </div>
         </div>
-    </div>
+    </section>
+
 </body>
 </html>
