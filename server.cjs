@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 // 1. ตั้งค่าโฟลเดอร์ views ด้วย path.resolve (แก้ปัญหา Failed to lookup view ชัวร์ที่สุด)
 // วิธีนี้จะช่วยให้ Vercel หาไฟล์ index.ejs ในโฟลเดอร์ views เจอแน่นอนครับ
-app.set('views', path.resolve(__dirname, 'views')); 
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // 2. Middleware สำหรับจัดการไฟล์ Static และการรับค่าจาก Form
