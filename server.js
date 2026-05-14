@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-base-js');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
