@@ -20,7 +20,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 4. หน้าแรก (Home) - แก้ไขให้ส่งตัวแปร 'queue' ตามที่หน้า index.ejs เรียกใช้
+// 4. หน้าแรก (Home) - ดึงข้อมูลคิวงานมาโชว์
 app.get('/', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -30,7 +30,7 @@ app.get('/', async (req, res) => {
 
         if (error) throw error;
 
-        // เปลี่ยนชื่อจาก jobs เป็น queue เพื่อให้ตรงกับโค้ดใน index.ejs แถวที่ 36
+        // ส่งตัวแปร 'queue' ไปให้หน้า index.ejs
         res.render('index', { queue: data || [] }); 
         
     } catch (err) {
@@ -39,7 +39,43 @@ app.get('/', async (req, res) => {
     }
 });
 
-// 5. หน้า Dashboard สำหรับ Admin
+// 5. ระบบบันทึกงานใหม่ (API สำหรับหน้า "แจ้งงานใหม่")
+app.post('/api/report-job', async (req, res) => {
+    try {
+        // รับค่าจากฟอร์มหน้าแรก
+        const { customer_name, phone, detail, is_member } = req.body;
+
+        // บันทึกลงตาราง 'jobs'
+        const { data, error } = await supabase
+            .from('jobs')
+            .insert([
+                { 
+                    customer_name: customer_name, 
+                    phone: phone, 
+                    detail: detail, 
+                    is_member: is_member === 'on', // ถ้าติ๊กถูกจะเป็น true
+                    status: 'Pending', // ตั้งค่าเริ่มต้นเป็น "รอคิว"
+                    created_at: new Date()
+                }
+            ]);
+
+        if (error) throw error;
+
+        // เมื่อบันทึกสำเร็จ ให้เด้งการแจ้งเตือนและกลับไปหน้าแรก
+        res.send(`
+            <script>
+                alert('ส่งข้อมูลให้ลุงบุญมีเรียบร้อยแล้วครับ! ลุงจะติดต่อกลับไปโดยเร็วที่สุด');
+                window.location.href = '/';
+            </script>
+        `);
+
+    } catch (err) {
+        console.error('❌ บันทึกงานผิดพลาด:', err.message);
+        res.status(500).send('ขออภัยครับลุง ระบบบันทึกข้อมูลติดขัดนิดหน่อย ลองใหม่อีกครั้งนะครับ');
+    }
+});
+
+// 6. หน้า Dashboard สำหรับ Admin
 app.get('/dashboard', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -49,7 +85,6 @@ app.get('/dashboard', async (req, res) => {
         
         if (error) throw error;
         
-        // หน้า Dashboard ใช้ตัวแปรชื่อ jobs ตามโค้ดเดิมที่วางไว้
         res.render('dashboard', { jobs: data || [] });
     } catch (err) {
         console.error('❌ Dashboard Error:', err.message);
@@ -57,17 +92,17 @@ app.get('/dashboard', async (req, res) => {
     }
 });
 
-// 6. หน้าสำหรับเพิ่มงานใหม่ (Admin)
+// 7. หน้าสำหรับเพิ่มงานใหม่ (หน้า Admin เดิม)
 app.get('/admin', (req, res) => {
     res.render('admin'); 
 });
 
-// 7. จัดการกรณีเข้าหน้าเว็บที่ไม่มีอยู่จริง (404 Not Found)
+// 8. จัดการกรณีเข้าหน้าเว็บที่ไม่มีอยู่จริง (404 Not Found)
 app.use((req, res) => {
     res.status(404).send('ไม่พบหน้าที่ลุงต้องการครับ ลองเช็กตัวสะกด URL อีกทีนะ');
 });
 
-// 8. เริ่มต้น Server (สำหรับการรันเพื่อทดสอบในเครื่องตัวเอง)
+// 9. เริ่มต้น Server (สำหรับการทดสอบในเครื่องตัวเอง)
 if (process.env.NODE_ENV !== 'production') {
     app.listen(port, () => {
         console.log(`🚀 แอปของลุงทำงานแล้วที่ http://localhost:${port}`);
