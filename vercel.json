@@ -1,13 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/server.cjs"
-    }
-  ],
-  "functions": {
-    "server.cjs": {
-      "runtime": "nodejs18.x"
-    }
-  }
+    { "source": "/(.*)", "destination": "/server.cjs" }
+  ]
 }
