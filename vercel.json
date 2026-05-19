@@ -1,15 +1,13 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server.cjs",
-      "use": "@vercel/node"
+      "source": "/(.*)",
+      "destination": "/server.cjs"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "server.cjs"
+  "functions": {
+    "server.cjs": {
+      "runtime": "nodejs18.x"
     }
-  ]
+  }
 }
