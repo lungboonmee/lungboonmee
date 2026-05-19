@@ -9,76 +9,166 @@
     <style>
         body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; }
         .sidebar { background: #1e293b; color: white; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
     </style>
 </head>
 <body class="flex min-h-screen">
 
-    <!-- 1. Sidebar (เมนูจัดการ) -->
+    <!-- 1. Sidebar -->
     <aside class="w-64 sidebar hidden md:block">
         <div class="p-6 text-2xl font-bold border-b border-slate-700">ลุงบุญมี Admin</div>
         <nav class="mt-6 p-4 space-y-2">
-            <a href="/admin" class="block py-2.5 px-4 rounded transition bg-blue-600">🏠 แดชบอร์ด</a>
-            <a href="#" class="block py-2.5 px-4 rounded transition hover:bg-slate-700">👥 สมาชิก</a>
-            <a href="#" class="block py-2.5 px-4 rounded transition hover:bg-slate-700">💰 บัญชี/รายได้</a>
+            <a href="/dashboard" class="block py-2.5 px-4 rounded transition hover:bg-slate-700">📊 แดชบอร์ด</a>
+            <a href="/admin" class="block py-2.5 px-4 rounded transition bg-blue-600">🛠️ จัดการงาน</a>
             <a href="/" class="block py-2.5 px-4 rounded transition hover:bg-slate-700 mt-10 text-slate-400">🌐 ไปหน้าเว็บ</a>
         </nav>
     </aside>
 
     <!-- 2. Main Content -->
     <main class="flex-1 p-4 md:p-10">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-semibold">รายการแจ้งงานทั้งหมด</h1>
-            <div class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm">
-                วันที่ปัจจุบัน: <%= new Date().toLocaleDateString('th-TH') %>
+        
+        <% if (typeof job !== 'undefined' && job) { %>
+            <!-- [โหมดแก้ไขงาน] จะปรากฏเมื่อมีการส่ง ID งานมา -->
+            <div class="mb-8">
+                <a href="/admin" class="text-blue-600 hover:underline text-sm">← กลับไปรายการทั้งหมด</a>
+                <h1 class="text-3xl font-bold mt-2">แก้ไขงาน: <%= job.detail %></h1>
+                <p class="text-slate-500">ลูกค้า: <%= job.customer_name %> | <%= job.phone %></p>
             </div>
-        </div>
 
-        <!-- ตารางรายการงาน -->
-        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs">
-                    <tr>
-                        <th class="px-6 py-4 font-semibold">ลูกค้า</th>
-                        <th class="px-6 py-4 font-semibold">รายละเอียดงาน</th>
-                        <th class="px-6 py-4 font-semibold text-center">สถานะ</th>
-                        <th class="px-6 py-4 font-semibold text-right">การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <% jobs.forEach(job => { %>
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="font-medium text-slate-900"><%= job.customer_name %></div>
-                            <div class="text-xs text-slate-400"><%= job.phone %></div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-600"><%= job.detail %></td>
-                        <td class="px-6 py-4 text-center">
-                            <% if (job.status === 'Pending') { %>
-                                <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">รอประเมิน</span>
-                            <% } else if (job.status === 'Quoted') { %>
-                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">เสนอราคาแล้ว</span>
-                            <% } else { %>
-                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">กำลังดำเนินการ</span>
-                            <% } %>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <!-- ฟอร์มส่งราคา (เฉพาะงานที่ยังไม่เสนอราคา) -->
-                            <% if (job.status === 'Pending') { %>
-                                <form action="/api/admin/offer-price" method="POST" class="flex items-center justify-end space-x-2">
-                                    <input type="hidden" name="job_id" value="<%= job.id %>">
-                                    <input type="number" name="price" placeholder="เสนอราคา" required class="w-24 p-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                                    <button type="submit" class="bg-slate-900 text-white px-3 py-2 rounded-lg text-xs hover:bg-slate-800 transition">ส่งราคา</button>
-                                </form>
-                            <% } else { %>
-                                <span class="text-xs text-slate-400 font-medium">ราคา: ฿<%= job.price.toLocaleString() %></span>
-                            <% } %>
-                        </td>
-                    </tr>
-                    <% }); %>
-                </tbody>
-            </table>
-        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- ฝั่งจัดการสถานะ -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
+                    <h2 class="text-xl font-semibold mb-4">อัปเดตสถานะงาน</h2>
+                    <div class="flex gap-4">
+                        <button onclick="updateStatus('<%= job.id %>', 'In-Progress')" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">เริ่มดำเนินการ</button>
+                        <button onclick="updateStatus('<%= job.id %>', 'Completed')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition">ปิดงาน/เสร็จสิ้น</button>
+                    </div>
+                </div>
+
+                <!-- ฝั่งอัปโหลดรูปภาพขั้นตอนงาน (ปรับเปลี่ยนเป็น job_steps) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-semibold mb-4 text-amber-600">📸 อัปโหลดรูปหน้างาน</h2>
+                    <div class="space-y-4">
+                        <% if (typeof job_steps !== 'undefined' && job_steps.length > 0) { %>
+                            <% job_steps.forEach(step => { %>
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-medium"><%= step.step_name %></span>
+                                        <span class="text-xs <%= step.is_done ? 'text-green-600' : 'text-slate-400' %>">
+                                            <%= step.is_done ? '● เสร็จแล้ว' : '○ รอดำเนินการ' %>
+                                        </span>
+                                    </div>
+                                    
+                                    <form onsubmit="handleUpload(event)" class="flex items-center gap-2">
+                                        <input type="hidden" name="jobId" value="<%= job.id %>">
+                                        <input type="hidden" name="stepId" value="<%= step.id %>">
+                                        <input type="file" name="photo" accept="image/*" required class="text-xs file:bg-slate-200 file:border-none file:px-3 file:py-1 file:rounded-full cursor-pointer">
+                                        <button type="submit" class="bg-slate-900 text-white px-4 py-1 rounded-lg text-xs hover:bg-black transition whitespace-nowrap">อัปโหลด</button>
+                                    </form>
+
+                                    <% if (step.photo_url) { %>
+                                        <div class="mt-3 relative group">
+                                            <img src="<%= step.photo_url %>" class="w-full h-40 object-cover rounded-lg border shadow-sm">
+                                            <div class="absolute inset-0 bg-black bg-opacity-10 rounded-lg group-hover:bg-opacity-0 transition"></div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl">
+                                <p class="text-slate-400 italic">ยังไม่มีขั้นตอนงานในระบบครับ</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+        <% } else { %>
+            <!-- [โหมดรายการทั้งหมด] -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-semibold">รายการแจ้งงานทั้งหมด</h1>
+                <div class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm">
+                    วันที่ปัจจุบัน: <%= new Date().toLocaleDateString('th-TH') %>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">ลูกค้า</th>
+                            <th class="px-6 py-4 font-semibold">รายละเอียดงาน</th>
+                            <th class="px-6 py-4 font-semibold text-center">สถานะ</th>
+                            <th class="px-6 py-4 font-semibold text-right">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <% jobs.forEach(job => { %>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-slate-900"><%= job.customer_name %></div>
+                                <div class="text-xs text-slate-400"><%= job.phone %></div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-600"><%= job.detail %></td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                    <%= job.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
+                                       job.status === 'In-Progress' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700' %>">
+                                    <%= job.status %>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="/admin?id=<%= job.id %>" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs hover:bg-slate-800 transition shadow-lg inline-block">แก้ไขงาน</a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
     </main>
 
+    <script>
+        async function updateStatus(jobId, newStatus) {
+            if (!confirm(`ต้องการเปลี่ยนสถานะเป็น ${newStatus} ใช่หรือไม่?`)) return;
+            const res = await fetch('/api/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ jobId, newStatus })
+            });
+            const data = await res.json();
+            if (data.success) window.location.reload();
+            else alert('Error: ' + data.error);
+        }
+
+        async function handleUpload(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const btn = form.querySelector('button');
+            
+            btn.disabled = true;
+            btn.innerText = 'กำลังอัปโหลด...';
+
+            try {
+                const res = await fetch('/api/upload-photo', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('อัปโหลดรูปสำเร็จ!');
+                    window.location.reload();
+                } else {
+                    alert('อัปโหลดไม่สำเร็จ: ' + data.error);
+                }
+            } catch (err) {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'อัปโหลด';
+            }
+        }
+    </script>
 </body>
 </html>

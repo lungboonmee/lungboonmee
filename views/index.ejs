@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ลุงบุญมี รับเหมา - บริการงานช่างระดับมืออาชีพ</title>
-    <!-- ใช้ Tailwind CSS เพื่อความสวยหรูและจัดระเบียบง่าย -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -12,22 +11,39 @@
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
         .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
         .hero-gradient { background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)); }
+        /* สไตล์ปุ่มกด */
+        .btn-auth { transition: all 0.3s ease; }
+        .btn-auth:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body class="text-slate-800">
 
-    <!-- 1. Landing Page / Hero Section -->
+    <div class="fixed top-5 right-5 z-50 flex gap-3">
+        <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+            <a href="/dashboard" class="glass btn-auth px-5 py-2 rounded-full text-sm font-semibold border border-amber-500/50 text-amber-700 shadow-lg">
+                🏠 ไปที่หลังบ้าน
+            </a>
+            <a href="/logout" class="bg-red-500/90 hover:bg-red-600 btn-auth px-5 py-2 rounded-full text-sm font-semibold text-white shadow-lg">
+                ออกจากระบบ
+            </a>
+        <% } else { %>
+            <a href="/login" class="glass btn-auth px-5 py-2 rounded-full text-sm font-semibold border border-slate-300 text-slate-600 shadow-lg">
+                🔑 เข้าสู่ระบบ
+            </a>
+        <% } %>
+    </div>
+
     <header class="relative h-[70vh] flex items-center justify-center text-white overflow-hidden bg-slate-900">
         <div class="absolute inset-0">
             <img src="/images/hero-bg.jpg" alt="Construction Work" class="w-full h-full object-cover">
             <div class="absolute inset-0 hero-gradient"></div>
         </div>
         <div class="relative z-10 text-center px-4">
-            <h1 class="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg">ลุงบุญมี รับเหมา</h1>
+            <h1 class="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg text-amber-500">ลุงบุญมี รับเหมา</h1>
             <p class="text-xl md:text-2xl font-light mb-8 opacity-95 tracking-wide">ซื่อสัตย์ งานไว มั่นใจลุงบุญมี</p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
                 <a href="#request-form" class="bg-amber-500 hover:bg-amber-600 text-white px-10 py-4 rounded-full font-semibold transition-all shadow-xl hover:scale-105">
-                    ส่งใบแจ้งงาน/ประเมินราคา
+                    ส่งใบแจ้งงาน / ประเมินราคา
                 </a>
                 <a href="#services" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-10 py-4 rounded-full font-semibold transition-all border border-white/30">
                     ดูบริการของเรา
@@ -36,7 +52,6 @@
         </div>
     </header>
 
-    <!-- ส่วนจุดเด่น (ซื่อสัตย์ งานไว ราคากันเอง) -->
     <section class="relative z-20 -mt-10 max-w-5xl mx-auto px-4">
         <div class="bg-amber-500 rounded-3xl shadow-2xl flex flex-wrap justify-around items-center text-slate-900 py-10 px-6">
             <div class="text-center p-4">
@@ -57,7 +72,6 @@
         </div>
     </section>
 
-    <!-- 2. ส่วนบริการของเรา (Our Services) -->
     <section id="services" class="max-w-6xl mx-auto py-20 px-4">
         <div class="text-center mb-16">
             <h2 class="text-4xl font-bold mb-4">บริการระดับมืออาชีพ</h2>
@@ -82,28 +96,21 @@
         </div>
     </section>
 
-    <!-- 3. หน้าแสดงคิวงาน (Public Queue) -->
     <section class="bg-slate-900 py-20 px-4">
         <div class="max-w-6xl mx-auto">
             <h2 class="text-3xl font-bold text-center text-white mb-12">คิวงานที่กำลังดำเนินการ</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <% if (queue && queue.length > 0) { %>
+                <% if (typeof queue !== 'undefined' && queue.length > 0) { %>
                     <% queue.forEach(job => { %>
                         <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                            <!-- ส่วนแก้ไข: แสดงคำว่า กำลังดำเนินการ / รอคิว / เสร็จเรียบร้อย ให้ถูกต้อง -->
                             <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider
                                 <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 
                                    job.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400' %>">
                                 
-                                <% if (job.status === 'In-Progress') { %>
-                                    กำลังดำเนินการ
-                                <% } else if (job.status === 'Completed') { %>
-                                    เสร็จเรียบร้อย
-                                <% } else { %>
-                                    รอคิว
-                                <% } %>
+                                <% if (job.status === 'In-Progress') { %> กำลังดำเนินการ <% } 
+                                   else if (job.status === 'Completed') { %> เสร็จเรียบร้อย <% } 
+                                   else { %> รอคิว <% } %>
                             </span>
-
                             <h3 class="text-xl font-semibold mt-4 mb-2 text-white"><%= job.detail %></h3>
                             <p class="text-white/50 text-sm">ลูกค้า: <%= job.customer_name %></p>
                         </div>
@@ -117,12 +124,11 @@
         </div>
     </section>
 
-    <!-- 4. หน้าแจ้งงาน (Request Form) -->
     <section id="request-form" class="py-20 px-4">
         <div class="max-w-2xl mx-auto">
             <div class="glass p-10 rounded-[2.5rem] card-shadow border border-white">
                 <div class="text-center mb-8">
-                    <h2 class="text-4xl font-bold mb-2">แจ้งงานใหม่</h2>
+                    <h2 class="text-4xl font-bold mb-2 text-slate-900">แจ้งงานใหม่</h2>
                     <p class="text-slate-500">กรอกรายละเอียดเพื่อให้ลุงประเมินราคาฟรี</p>
                 </div>
                 <form action="/api/report-job" method="POST" class="space-y-6">
@@ -138,16 +144,14 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold mb-2">รายละเอียดงาน</label>
-                        <textarea name="detail" rows="4" required class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all" placeholder="เช่น ทาสีห้องนอน 2 ห้อง, ต่อเติมหลังคาโรงรถ..."></textarea>
+                        <textarea name="detail" rows="4" required class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all" placeholder="เช่น ทาสีห้องนอน..."></textarea>
                     </div>
-                    
                     <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100">
                         <label class="flex items-center space-x-3 cursor-pointer">
                             <input type="checkbox" name="is_member" class="w-6 h-6 rounded-lg accent-amber-500 border-amber-300">
                             <span class="text-sm font-bold text-amber-900">สมัครสมาชิกเพื่อรับข่าวสารและติดตามสถานะงาน</span>
                         </label>
                     </div>
-
                     <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all shadow-2xl hover:scale-[1.02] active:scale-95">
                         ส่งข้อมูลให้ลุงบุญมี
                     </button>
@@ -159,6 +163,5 @@
     <footer class="bg-slate-900 py-10 text-center text-white/40 text-sm">
         <p>&copy; 2026 ลุงบุญมี รับเหมา - ซื่อสัตย์ งานไว ราคากันเอง</p>
     </footer>
-
 </body>
 </html>
