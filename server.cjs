@@ -2,85 +2,110 @@ const express = require('express');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// --- Config ล้ำสมัย ---
+// --- 1. ตั้งค่าพื้นฐาน (Configuration) ---
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// ระบบ Session
+// --- 2. ตั้งค่าระบบ Session แบบละเอียด (Session Management) ---
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'lungboonmee_premium_key_2026',
+    secret: process.env.SESSION_SECRET || 'lungboonmee_ultra_secure_2026',
+    name: 'lungboonmee.sid',
     resave: false,
     saveUninitialized: false,
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 3600000 
+        maxAge: 1000 * 60 * 60 * 24 // ให้ระบบจำลุงได้ 24 ชั่วโมง
     }
 }));
 
+// --- 3. เชื่อมต่อ Supabase ---
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
-// --- Auth Middleware ---
+// --- 4. ฟังก์ชันป้องกันคนแอบเข้าหลังบ้าน (Middleware) ---
 const requireAuth = (req, res, next) => {
-    if (!req.session.isLoggedIn) return res.redirect('/login');
-    next();
+    if (req.session && req.session.isLoggedIn) {
+        return next();
+    }
+    res.redirect('/login');
 };
 
-// --- ROUTES: Login & Auth ---
-app.get('/login', (req, res) => res.render('login', { error: null }));
+// --- 5. เส้นทางสำหรับหน้า Login (Authentication Routes) ---
+app.get('/login', (req, res) => {
+    if (req.session.isLoggedIn) return res.redirect('/dashboard');
+    res.render('login', { error: null });
+});
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
+    // ระบบตรวจสอบสิทธิ์ (ในอนาคตเปลี่ยนเป็นเช็คตาราง users ใน Supabase ได้)
     if (username === 'admin' && password === '1234') {
         req.session.isLoggedIn = true;
-        req.session.user = 'ลุงบุญมี';
+        req.session.user = username;
         return res.redirect('/dashboard');
     }
-    res.render('login', { error: 'รหัสผ่านไม่ถูกต้องครับลุง!' });
+    res.render('login', { error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้องครับลุง!' });
 });
 
-app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => res.redirect('/'));
+});
 
-// --- ROUTES: Dashboard & Admin ---
+// --- 6. เส้นทางหน้า Dashboard (Main Data View) ---
 app.get('/dashboard', requireAuth, async (req, res) => {
     res.set('Cache-Control', 'no-store');
-    const { data: jobs } = await supabase.from('jobs').select('*').order('created_at', { ascending: false });
-    res.render('dashboard', { jobs: jobs || [], user: req.session.user });
-});
-
-// เพิ่มส่วน Admin ที่ดึงข้อมูล 3 ตารางสัมพันธ์กัน
-app.get('/admin', requireAuth, async (req, res) => {
-    const jobId = req.query.id;
     try {
-        const [jobRes, stepsRes, matsRes] = await Promise.all([
-            supabase.from('jobs').select('*').eq('id', jobId).single(),
-            supabase.from('job_steps').select('*').eq('job_id', jobId).order('step_name'),
-            supabase.from('job_materials').select('*').eq('job_id', jobId)
-        ]);
-        res.render('admin', { 
-            job: jobRes.data, 
-            job_steps: stepsRes.data || [], 
-            job_materials: matsRes.data || [] 
-        });
+        const { data: jobs, error } = await supabase
+            .from('jobs')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.render('dashboard', { jobs: jobs || [], user: req.session.user });
     } catch (err) {
-        res.status(500).send("ดึงข้อมูลเชิงลึกไม่ได้ครับลุง");
+        res.status(500).send("ดึงข้อมูลหลักไม่ได้ครับลุง: " + err.message);
     }
 });
 
-// --- Routes อื่นๆ ---
-app.get('/', (req, res) => res.render('index'));
+// --- 7. เส้นทางหน้า Admin (Data Details - ขั้นสูง) ---
+app.get('/admin', requireAuth, async (req, res) => {
+    const { id } = req.query;
+    if (!id) return res.redirect('/dashboard');
+    
+    try {
+        // ดึงข้อมูลแบบ Promise.all เพื่อความเร็วสูงสุด
+        const [job, steps, materials] = await Promise.all([
+            supabase.from('jobs').select('*').eq('id', id).single(),
+            supabase.from('job_steps').select('*').eq('job_id', id),
+            supabase.from('job_materials').select('*').eq('job_id', id)
+        ]);
 
-// Vercel ใช้ Export แทน app.listen ในบางกรณี แต่ถ้าใช้ server.cjs ปกติให้เก็บไว้ครับ
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => console.log(`🚀 Premium Server running on port ${port}`));
-}
+        res.render('admin', { 
+            job: job.data, 
+            steps: steps.data || [], 
+            materials: materials.data || [] 
+        });
+    } catch (err) {
+        res.status(500).send("Error Loading Admin Data");
+    }
+});
 
-module.exports = app;
+// --- 8. หน้าหลัก (Landing Page) ---
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
+// --- 9. เริ่มรันเซิร์ฟเวอร์ ---
+app.listen(port, () => {
+    console.log(`Server is fully operational on port ${port}`);
+});
