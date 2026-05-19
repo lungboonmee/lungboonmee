@@ -15,6 +15,12 @@
             <p class="text-slate-400">เข้าสู่ระบบจัดการงานหลังบ้าน</p>
         </div>
         
+        <% if (locals.error) { %>
+            <div class="mb-6 p-4 bg-red-900/30 border border-red-500/50 text-red-400 rounded-xl text-sm text-center">
+                <%= error %>
+            </div>
+        <% } %>
+        
         <form action="/api/login" method="POST" class="space-y-6">
             <div>
                 <label class="block text-sm text-slate-400 mb-2">ชื่อผู้ใช้</label>
@@ -24,13 +30,13 @@
                 <label class="block text-sm text-slate-400 mb-2">รหัสผ่าน</label>
                 <input type="password" name="password" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all">
             </div>
-            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-4 rounded-xl text-lg transition-all shadow-xl">
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-4 rounded-xl text-lg transition-all shadow-xl hover:shadow-amber-500/20">
                 เข้าสู่ระบบ
             </button>
         </form>
         
-        <div class="mt-6 text-center">
-            <a href="/" class="text-slate-500 text-sm hover:text-amber-500">← กลับหน้าหลัก</a>
+        <div class="mt-8 text-center">
+            <a href="/" class="text-slate-500 text-sm hover:text-amber-500 transition-colors">← กลับหน้าหลัก</a>
         </div>
     </div>
 </body>

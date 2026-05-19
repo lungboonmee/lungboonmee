@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ระบบ Session แบบปลอดภัยสำหรับ Production
+// ระบบ Session
 app.use(session({
     secret: process.env.SESSION_SECRET || 'lungboonmee_premium_key_2026',
     resave: false,
@@ -22,7 +22,7 @@ app.use(session({
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 3600000 // ให้ Login ค้างไว้ได้ 1 ชม.
+        maxAge: 3600000 
     }
 }));
 
@@ -34,14 +34,11 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
-// --- ROUTES: Login & Authentication ---
-app.get('/login', (req, res) => {
-    res.render('login', { error: null });
-});
+// --- ROUTES: Login & Auth ---
+app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-    // ลุงสามารถปรับเปลี่ยน Logic ตรงนี้เพื่อเช็คกับ Database จริงๆ ได้ครับ
     if (username === 'admin' && password === '1234') {
         req.session.isLoggedIn = true;
         req.session.user = 'ลุงบุญมี';
@@ -50,18 +47,40 @@ app.post('/api/login', (req, res) => {
     res.render('login', { error: 'รหัสผ่านไม่ถูกต้องครับลุง!' });
 });
 
-app.get('/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/'));
-});
+app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
-// --- ROUTES: Dashboard (ที่มีระบบป้องกัน Cache) ---
+// --- ROUTES: Dashboard & Admin ---
 app.get('/dashboard', requireAuth, async (req, res) => {
     res.set('Cache-Control', 'no-store');
     const { data: jobs } = await supabase.from('jobs').select('*').order('created_at', { ascending: false });
     res.render('dashboard', { jobs: jobs || [], user: req.session.user });
 });
 
+// เพิ่มส่วน Admin ที่ดึงข้อมูล 3 ตารางสัมพันธ์กัน
+app.get('/admin', requireAuth, async (req, res) => {
+    const jobId = req.query.id;
+    try {
+        const [jobRes, stepsRes, matsRes] = await Promise.all([
+            supabase.from('jobs').select('*').eq('id', jobId).single(),
+            supabase.from('job_steps').select('*').eq('job_id', jobId).order('step_name'),
+            supabase.from('job_materials').select('*').eq('job_id', jobId)
+        ]);
+        res.render('admin', { 
+            job: jobRes.data, 
+            job_steps: stepsRes.data || [], 
+            job_materials: matsRes.data || [] 
+        });
+    } catch (err) {
+        res.status(500).send("ดึงข้อมูลเชิงลึกไม่ได้ครับลุง");
+    }
+});
+
 // --- Routes อื่นๆ ---
 app.get('/', (req, res) => res.render('index'));
 
-app.listen(port, () => console.log(`🚀 Premium Server is running on port ${port}`));
+// Vercel ใช้ Export แทน app.listen ในบางกรณี แต่ถ้าใช้ server.cjs ปกติให้เก็บไว้ครับ
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => console.log(`🚀 Premium Server running on port ${port}`));
+}
+
+module.exports = app;
