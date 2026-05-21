@@ -1,174 +1,319 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบหลังบ้าน - ลุงบุญมี รับเหมา</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; }
-        .sidebar { background: #1e293b; color: white; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจัดการงานหลังบ้าน — ลุงบุญมี รับเหมา</title>
+  <!-- Tailwind CSS สำหรับจัดหน้าตาบอร์ด -->
+  <script src="https://tailwindcss.com"></script>
 </head>
-<body class="flex min-h-screen">
+<body class="bg-[#f4f6f9] min-h-screen font-sans text-slate-800">
 
-    <!-- 1. Sidebar -->
-    <aside class="w-64 sidebar hidden md:block">
-        <div class="p-6 text-2xl font-bold border-b border-slate-700">ลุงบุญมี Admin</div>
-        <nav class="mt-6 p-4 space-y-2">
-            <a href="/dashboard" class="block py-2.5 px-4 rounded transition hover:bg-slate-700">📊 แดชบอร์ด</a>
-            <a href="/admin" class="block py-2.5 px-4 rounded transition bg-blue-600">🛠️ จัดการงาน</a>
-            <a href="/" class="block py-2.5 px-4 rounded transition hover:bg-slate-700 mt-10 text-slate-400">🌐 ไปหน้าเว็บ</a>
-        </nav>
-    </aside>
+  <!-- แถบเมนูด้านบน (Navbar) -->
+  <nav class="bg-[#111827] text-white p-4 shadow-sm">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <h1 class="text-base md:text-lg font-bold">ระบบจัดการงานหลังบ้าน — ลุงบุญมี รับเหมา</h1>
+      <div class="flex items-center space-x-4">
+        <span class="text-sm text-slate-300">สวัสดี ลุงบุญมี</span>
+        <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-1.5 rounded-lg transition">ออกจากระบบ</a>
+      </div>
+    </div>
+  </nav>
 
-    <!-- 2. Main Content -->
-    <main class="flex-1 p-4 md:p-10">
+  <!-- เนื้อหาภายในแผงควบคุมหลัก -->
+  <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- 1. แผงสรุปสถิติจำนวนคิวงานหลัก -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase">งานทั้งหมดในคิว</span>
+        <span class="text-2xl font-bold text-slate-900 mt-1 block">
+          <%= (typeof jobsSummary !== 'undefined') ? jobsSummary.all.length : ((typeof jobs !== 'undefined') ? jobs.length : 0) %> งาน
+        </span>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase">⏳ กำลังรอคิว</span>
+        <span class="text-2xl font-bold text-amber-500 mt-1 block">
+          <%= (typeof jobsSummary !== 'undefined') ? jobsSummary.pending.length : 0 %> งาน
+        </span>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase">⚡ กำลังดำเนินการ</span>
+        <span class="text-2xl font-bold text-blue-600 mt-1 block">
+          <%= (typeof jobsSummary !== 'undefined') ? jobsSummary.inProgress.length : 0 %> งาน
+        </span>
+      </div>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase">💰 ยอดเงินจบงานแล้ว</span>
+        <span class="text-2xl font-bold text-emerald-600 mt-1 block">
+          <%= (typeof jobsSummary !== 'undefined') ? jobsSummary.completed.length : 0 %> งาน
+        </span>
+      </div>
+    </section>
+
+    <!-- 2. ส่วนแสดงการ์ดรายการแจ้งงานล่าสุด (ผูกกล่องป๊อปอัปเขียนบันทึก/ความเห็น) -->
+    <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+      <h2 class="text-lg font-bold text-slate-900">รายการแจ้งงานล่าสุด</h2>
+      <div class="space-y-3">
+        <% 
+          let displayJobs = [];
+          if (typeof jobsSummary !== 'undefined') { displayJobs = jobsSummary.all; }
+          else if (typeof jobs !== 'undefined') { displayJobs = jobs; }
+        %>
         
-        <% if (typeof job !== 'undefined' && job) { %>
-            <!-- [โหมดแก้ไขงาน] จะปรากฏเมื่อมีการส่ง ID งานมา -->
-            <div class="mb-8">
-                <a href="/admin" class="text-blue-600 hover:underline text-sm">← กลับไปรายการทั้งหมด</a>
-                <h1 class="text-3xl font-bold mt-2">แก้ไขงาน: <%= job.detail %></h1>
-                <p class="text-slate-500">ลูกค้า: <%= job.customer_name %> | <%= job.phone %></p>
+        <% if (displayJobs && displayJobs.length > 0) { %>
+          <% displayJobs.forEach(function(item) { %>
+            <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-bold uppercase tracking-wide"><%= item.status || 'Pending' %></span>
+                <h3 class="text-base font-bold text-slate-800"><%= item.job_name || 'งานรับเหมา' %></h3>
+                <p class="text-xs text-slate-500">ลูกค้า: <%= item.customer_name %> | 📞 <%= item.phone || item.customer_phone || '-' %></p>
+              </div>
+              <div class="flex items-center gap-3 self-end sm:self-center">
+                <!-- Dropdown เปลี่ยนสถานะงานหน้าการ์ด -->
+                <select id="card-status-<%= item.id || item._id %>" class="text-xs font-medium px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-600 outline-none">
+                  <option value="Pending" <%= item.status === 'Pending' ? 'selected' : '' %>>⏳ รอคิว</option>
+                  <option value="In-Progress" <%= item.status === 'In-Progress' ? 'selected' : '' %>>⚡ กำลังทำ</option>
+                  <option value="Completed" <%= item.status === 'Completed' ? 'selected' : '' %>>✅ เสร็จสิ้น</option>
+                </select>
+                <button 
+                  type="button" 
+                  onclick="openStatusModal('<%= item.id || item._id %>', 'card-status-<%= item.id || item._id %>', '<%= item.job_name || \'งานรับเหมา\' %>')" 
+                  class="bg-[#111827] hover:bg-slate-800 text-white text-xs font-semibold py-2 px-5 rounded-lg transition shadow"
+                >
+                  จัดการงาน
+                </button>
+              </div>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- ฝั่งจัดการสถานะ -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
-                    <h2 class="text-xl font-semibold mb-4">อัปเดตสถานะงาน</h2>
-                    <div class="flex gap-4">
-                        <button onclick="updateStatus('<%= job.id %>', 'In-Progress')" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">เริ่มดำเนินการ</button>
-                        <button onclick="updateStatus('<%= job.id %>', 'Completed')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition">ปิดงาน/เสร็จสิ้น</button>
-                    </div>
-                </div>
-
-                <!-- ฝั่งอัปโหลดรูปภาพขั้นตอนงาน (ปรับเปลี่ยนเป็น job_steps) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xl font-semibold mb-4 text-amber-600">📸 อัปโหลดรูปหน้างาน</h2>
-                    <div class="space-y-4">
-                        <% if (typeof job_steps !== 'undefined' && job_steps.length > 0) { %>
-                            <% job_steps.forEach(step => { %>
-                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="font-medium"><%= step.step_name %></span>
-                                        <span class="text-xs <%= step.is_done ? 'text-green-600' : 'text-slate-400' %>">
-                                            <%= step.is_done ? '● เสร็จแล้ว' : '○ รอดำเนินการ' %>
-                                        </span>
-                                    </div>
-                                    
-                                    <form onsubmit="handleUpload(event)" class="flex items-center gap-2">
-                                        <input type="hidden" name="jobId" value="<%= job.id %>">
-                                        <input type="hidden" name="stepId" value="<%= step.id %>">
-                                        <input type="file" name="photo" accept="image/*" required class="text-xs file:bg-slate-200 file:border-none file:px-3 file:py-1 file:rounded-full cursor-pointer">
-                                        <button type="submit" class="bg-slate-900 text-white px-4 py-1 rounded-lg text-xs hover:bg-black transition whitespace-nowrap">อัปโหลด</button>
-                                    </form>
-
-                                    <% if (step.photo_url) { %>
-                                        <div class="mt-3 relative group">
-                                            <img src="<%= step.photo_url %>" class="w-full h-40 object-cover rounded-lg border shadow-sm">
-                                            <div class="absolute inset-0 bg-black bg-opacity-10 rounded-lg group-hover:bg-opacity-0 transition"></div>
-                                        </div>
-                                    <% } %>
-                                </div>
-                            <% }); %>
-                        <% } else { %>
-                            <div class="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl">
-                                <p class="text-slate-400 italic">ยังไม่มีขั้นตอนงานในระบบครับ</p>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-
+          <% }); %>
         <% } else { %>
-            <!-- [โหมดรายการทั้งหมด] -->
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-semibold">รายการแจ้งงานทั้งหมด</h1>
-                <div class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm">
-                    วันที่ปัจจุบัน: <%= new Date().toLocaleDateString('th-TH') %>
-                </div>
+          <!-- การ์ดตัวอย่างจำลองสำหรับเทสระบบป๊อปอัป -->
+          <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <span class="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-bold uppercase tracking-wide">Pending</span>
+              <h3 class="text-base font-bold text-slate-800">นอนเล่น</h3>
+              <p class="text-xs text-slate-500">ลูกค้า: ทองเค | 📞 0812345678</p>
             </div>
-
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-200">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs">
-                        <tr>
-                            <th class="px-6 py-4 font-semibold">ลูกค้า</th>
-                            <th class="px-6 py-4 font-semibold">รายละเอียดงาน</th>
-                            <th class="px-6 py-4 font-semibold text-center">สถานะ</th>
-                            <th class="px-6 py-4 font-semibold text-right">การจัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <% jobs.forEach(job => { %>
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="font-medium text-slate-900"><%= job.customer_name %></div>
-                                <div class="text-xs text-slate-400"><%= job.phone %></div>
-                            </td>
-                            <td class="px-6 py-4 text-slate-600"><%= job.detail %></td>
-                            <td class="px-6 py-4 text-center">
-                                <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                    <%= job.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
-                                       job.status === 'In-Progress' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700' %>">
-                                    <%= job.status %>
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="/admin?id=<%= job.id %>" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs hover:bg-slate-800 transition shadow-lg inline-block">แก้ไขงาน</a>
-                            </td>
-                        </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
+            <div class="flex items-center gap-3 self-end sm:self-center">
+              <select id="card-status-mock" class="text-xs font-medium px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-600">
+                <option value="Pending" selected>⏳ รอคิว</option>
+                <option value="In-Progress">⚡ กำลังทำ</option>
+                <option value="Completed">✅ เสร็จสิ้น</option>
+              </select>
+              <button type="button" onclick="openStatusModal('mock-id', 'card-status-mock', 'นอนเล่น')" class="bg-[#111827] hover:bg-slate-800 text-white text-xs font-semibold py-2 px-5 rounded-lg transition shadow">จัดการงาน</button>
             </div>
+          </div>
         <% } %>
-    </main>
+      </div>
+    </section>
 
-    <script>
-        async function updateStatus(jobId, newStatus) {
-            if (!confirm(`ต้องการเปลี่ยนสถานะเป็น ${newStatus} ใช่หรือไม่?`)) return;
-            const res = await fetch('/api/update-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ jobId, newStatus })
-            });
-            const data = await res.json();
-            if (data.success) window.location.reload();
-            else alert('Error: ' + data.error);
+    <!-- 3. ระบบจัดการข่าวประกาศและกิจกรรมหน้าร้าน -->
+    <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm md:text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>📢</span> ระบบจัดการข่าวประกาศและกิจกรรมหน้าร้าน
+        </h3>
+        <button class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700 transition font-medium">+ เพิ่มประกาศใหม่</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b text-slate-400 font-medium">
+              <th class="pb-2 font-semibold">หัวข้อข่าวประกาศ</th>
+              <th class="pb-2 font-semibold">รายละเอียดเนื้อหา</th>
+              <th class="pb-2 font-semibold">สถานะ</th>
+              <th class="pb-2 font-semibold">ตัวเลือก</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (typeof announcements !== 'undefined' && announcements.length > 0) { %>
+              <% announcements.forEach(function(ann) { %>
+                <tr class="border-b last:border-0 text-slate-700 hover:bg-slate-50/50">
+                  <td class="py-3 font-medium"><%= ann.title %></td>
+                  <td class="py-3 text-slate-500"><%= ann.content %></td>
+                  <td class="py-3"><%= ann.status %></td>
+                  <td class="py-3 text-blue-600 font-medium cursor-pointer hover:underline">แก้ไข</td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr class="text-slate-400">
+                <td class="py-4 text-center" colspan="4">ไม่มีข้อมูลประกาศในขณะนี้...</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. รายชื่อระบบฐานข้อมูลสมาชิก + เพิ่มกล่องกรอกค้นหาสมาชิกจริงตรงตารางตามภาพ -->
+    <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-2">
+        <h3 class="text-sm md:text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>👥</span> รายชื่อระบบฐานข้อมูลสมาชิก
+        </h3>
+        <!-- กล่องสำหรับพิมพ์คำค้นหาสมาชิก แสดงผลทันทีโดยไม่ต้องโหลดหน้าเว็บซ้ำ -->
+        <div class="relative w-full sm:max-w-xs">
+          <input 
+            type="text" 
+            id="member-search-input" 
+            onkeyup="filterMembersTable()" 
+            placeholder="🔎 พิมพ์ค้นหา ชื่อสมาชิก หรือ เบอร์โทร..." 
+            class="w-full p-2 pl-3 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+          >
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse" id="member-data-table">
+          <thead>
+            <tr class="border-b text-slate-400 font-medium">
+              <th class="pb-2 font-semibold">ชื่อสมาชิก</th>
+              <th class="pb-2 font-semibold">เบอร์โทรศัพท์</th>
+              <th class="pb-2 font-semibold">วันที่สมัคร</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (typeof users !== 'undefined' && users.length > 0) { %>
+              <% users.forEach(function(user) { %>
+                <tr class="border-b last:border-0 hover:bg-slate-50/50 text-slate-700">
+                  <td class="py-3 font-medium"><%= user.name %></td>
+                  <td class="py-3 text-slate-600"><%= user.phone || '-' %></td>
+                  <td class="py-3 text-slate-400"><%= user.created_at ? new Date(user.created_at).toLocaleDateString('th-TH') : '-' %></td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <!-- ตัวอย่างกรณีทดสอบระบบหรือฐานข้อมูลยังว่างอยู่ตามรูปบอร์ดลุงบุญมี -->
+              <tr class="border-b last:border-0 hover:bg-slate-50/50 text-slate-700">
+                <td class="py-3 font-medium">คุณ สมพร</td>
+                <td class="py-3 text-slate-600">0812345688</td>
+                <td class="py-3 text-slate-400">14/5/2569</td>
+              </tr>
+              <tr class="border-b last:border-0 hover:bg-slate-50/50 text-slate-700">
+                <td class="py-3 font-medium">คุณ สมชาย</td>
+                <td class="py-3 text-slate-600">0855554433</td>
+                <td class="py-3 text-slate-400">15/5/2569</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="text-center text-xs text-slate-400 pt-4">
+      © 2026 ลุงบุญมี รับเหมา — PORTAL v2
+    </div>
+  </main>
+
+  <!-- 🛠️ ส่วนแบบฟอร์มป๊อปอัปกรอกบันทึกความคืบหน้าแจ้งสมาชิก (Modal Popup) -->
+  <div id="status-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 border border-slate-100">
+      
+      <div class="flex justify-between items-start border-b pb-3">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">บันทึกความคืบหน้าแจ้งสมาชิก</h3>
+          <p id="modal-job-title" class="text-xs text-slate-400 mt-0.5">งาน: -</p>
+        </div>
+        <button type="button" onclick="closeStatusModal()" class="text-slate-400 hover:text-slate-600 text-sm p-1">✕</button>
+      </div>
+
+      <form id="modal-status-form" class="space-y-4">
+        <!-- ซ่อนค่าตัวแปร ID และค่าสถานะที่จะบันทึกลงหลังบ้าน Supabase -->
+        <input type="hidden" id="modal-job-id">
+        <input type="hidden" id="modal-status-value">
+
+        <div>
+          <p class="text-xs font-semibold text-slate-600">สถานะคิวงานที่จะเปลี่ยน: <span id="modal-status-preview" class="text-blue-600 font-bold uppercase">-</span></p>
+        </div>
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">กรอกบันทึก / ข้อความความเห็นประกอบความคืบหน้า</label>
+          <textarea 
+            id="modal-comment-input" 
+            rows="4" 
+            placeholder="พิมพ์รายละเอียดแจ้งสมาชิก เช่น ช่างเตรียมวัสดุเรียบร้อยแล้ว, กำลังเข้าหน้างานเพื่อดำเนินการเทพื้นปูนครับ..." 
+            class="w-full p-2.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 leading-relaxed" 
+            required
+          ></textarea>
+        </div>
+
+        <div class="flex space-x-2 pt-1">
+          <button type="button" onclick="closeStatusModal()" class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold transition">ยกเลิก</button>
+          <button type="submit" class="w-2/3 bg-[#111827] hover:bg-slate-800 text-white py-2 rounded-lg text-xs font-semibold shadow transition">บันทึกและส่งอัปเดต</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript คุมการทำงานบอร์ดลุงบุญมี -->
+  <script>
+    // 1. เปิดกล่องฟอร์มกรอกบันทึกความเห็นดักจับตามการ์ด
+    function openStatusModal(jobId, selectElementId, jobTitle) {
+      const selectedStatusValue = document.getElementById(selectElementId).value;
+      
+      document.getElementById('modal-job-id').value = jobId;
+      document.getElementById('modal-status-value').value = selectedStatusValue;
+      document.getElementById('modal-status-preview').innerText = selectedStatusValue;
+      document.getElementById('modal-job-title').innerText = `งาน: ${jobTitle}`;
+      document.getElementById('modal-comment-input').value = ''; 
+      
+      document.getElementById('status-modal').classList.remove('hidden');
+    }
+
+    function closeStatusModal() {
+      document.getElementById('status-modal').classList.add('hidden');
+    }
+
+    // 2. ระบบค้นหารายชื่อสมาชิก ค้นหาเรียลไทม์ได้ทั้ง ชื่อ หรือ เบอร์โทรศัพท์ โดยอิงโครงสร้างตารางจริง
+    function filterMembersTable() {
+      const keyword = document.getElementById('member-search-input').value.toLowerCase();
+      const tableBody = document.getElementById('member-data-table').getElementsByTagName('tbody')[0];
+      const tableRows = tableBody.getElementsByTagName('tr');
+
+      for (let i = 0; i < tableRows.length; i++) {
+        // ดึงเซลล์คอลัมน์ชื่อ (หลักที่ 1) และคอลัมน์เบอร์โทร (หลักที่ 2)
+        const nameColumn = tableRows[i].getElementsByTagName('td')[0];
+        const phoneColumn = tableRows[i].getElementsByTagName('td')[1];
+
+        if (nameColumn && phoneColumn) {
+          const nameText = nameColumn.textContent || nameColumn.innerText;
+          const phoneText = phoneColumn.textContent || phoneColumn.innerText;
+
+          if (nameText.toLowerCase().includes(keyword) || phoneText.toLowerCase().includes(keyword)) {
+            tableRows[i].style.display = ""; // แสดงแถวถ้าตรงคำค้นหา
+          } else {
+            tableRows[i].style.display = "none"; // ซ่อนแถวถ้าไม่ตรงคำค้นหา
+          }
         }
+      }
+    }
 
-        async function handleUpload(event) {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData(form);
-            const btn = form.querySelector('button');
-            
-            btn.disabled = true;
-            btn.innerText = 'กำลังอัปโหลด...';
+    // 3. ยิง Fetch API ไปบันทึก พร้อมสลาย Edge Cache บน Vercel เพื่อรีเซ็ตหน้าจอตัวเลขแสดงผลทันที
+    document.getElementById('modal-status-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const jobId = document.getElementById('modal-job-id').value;
+      const newStatus = document.getElementById('modal-status-value').value;
+      const comment = document.getElementById('modal-comment-input').value;
 
-            try {
-                const res = await fetch('/api/upload-photo', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert('อัปโหลดรูปสำเร็จ!');
-                    window.location.reload();
-                } else {
-                    alert('อัปโหลดไม่สำเร็จ: ' + data.error);
-                }
-            } catch (err) {
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'อัปโหลด';
-            }
+      try {
+        const response = await fetch('/api/update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId, newStatus, comment })
+        });
+
+        if (response.ok) {
+          alert('บันทึกความคืบหน้า และส่งคำสั่งอัปเดตงานสำเร็จแล้วช่างลุงบุญมี!');
+          closeStatusModal();
+          
+          // ทำลายแคชบราวเซอร์และระบบโครงข่าย Vercel ส่งพารามิเตอร์เวลากดดึงหน้าสดใหม่จากฐานข้อมูล
+          window.location.href = window.location.pathname + '?timestamp=' + Date.now();
+        } else {
+          alert('ระบบเซิร์ฟเวอร์หลังบ้านขัดข้อง ปฏิเสธการบันทึกข้อมูล');
         }
-    </script>
+      } catch (error) {
+        alert('เกิดปัญหาเครือข่ายอินเทอร์เน็ต ไม่สามารถติดต่อปลายสาย API หลังบ้านได้');
+      }
+    });
+  </script>
 </body>
 </html>

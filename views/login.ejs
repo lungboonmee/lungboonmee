@@ -2,20 +2,77 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>เข้าสู่ระบบ | ลุงบุญมี</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบแอดมิน — ลุงบุญมี รับเหมา</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, "Noto Sans Thai"; background-color: #05070C; color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-box { width: 100%; max-width: 420px; background-color: #0D1321; border: 1px solid #1E293B; padding: 40px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
+        .login-title { font-size: 24px; font-weight: bold; color: #fff; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .login-subtitle { font-size: 13px; color: #64748B; margin-bottom: 30px; font-weight: 300; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; color: #BF953F; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .form-control { width: 100%; padding: 14px; background-color: #05070C; border: 1px solid #1E293B; border-radius: 12px; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
+        .form-control:focus { border-color: #BF953F; box-shadow: 0 0 0 1px rgba(191,149,63,0.2); }
+        .btn-login { width: 100%; background: linear-gradient(135deg, #BF953F 0%, #B38728 100%); color: #05070B; font-weight: bold; padding: 15px; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; transition: 0.3s; box-shadow: 0 10px 20px rgba(179,135,40,0.15); }
+        .btn-login:hover { opacity: 0.95; transform: translateY(-0.5px); }
+        .back-btn { display: inline-block; margin-top: 24px; font-size: 12px; color: #64748B; text-decoration: none; transition: 0.3s; }
+        .back-btn:hover { color: #BF953F; }
+        .error-message { display: none; background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; font-size: 13px; font-weight: 500; padding: 12px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+    </style>
 </head>
-<body class="bg-slate-950 flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-sm bg-slate-900 p-8 rounded-3xl border border-slate-800">
-        <h1 class="text-white text-center text-2xl font-bold mb-6">เข้าสู่ระบบ</h1>
-        <% if (error) { %>
-            <div class="bg-red-500/20 text-red-400 p-3 rounded-xl mb-4 text-center"><%= error %></div>
-        <% } %>
-        <form action="/api/login" method="POST" class="space-y-4">
-            <input type="text" name="username" placeholder="ชื่อผู้ใช้" required class="w-full bg-slate-800 p-4 rounded-xl text-white outline-none">
-            <input type="password" name="password" placeholder="รหัสผ่าน" required class="w-full bg-slate-800 p-4 rounded-xl text-white outline-none">
-            <button type="submit" class="w-full bg-amber-500 py-4 rounded-xl font-bold">เข้าสู่ระบบ</button>
+<body>
+
+    <div class="login-box">
+        <div class="login-title">เข้าสู่ระบบแอดมิน</div>
+        <div class="login-subtitle">แผงควบคุมหลังบ้าน ลุงบุญมี รับเหมา</div>
+
+        <div id="errorBox" class="error-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>ชื่อผู้ใช้งาน (Username)</label>
+                <input type="text" id="username" required class="form-control" placeholder="ระบุชื่อผู้ใช้">
+            </div>
+            <div class="form-group" style="margin-bottom: 26px;">
+                <label>รหัสผ่าน (Password)</label>
+                <input type="password" id="password" required class="form-control" placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-login">เข้าสู่ระบบหลังบ้าน</button>
         </form>
+
+        <a href="/" class="back-btn">← กลับสู่หน้าเว็บหลัก</a>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorBox = document.getElementById('errorBox');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    // ล็อกอินผ่าน! สั่งเบราเซอร์เก็บกุญแจลับจำสถานะไว้ในเครื่องลุงทันที
+                    localStorage.setItem('adminToken', result.token);
+                    // พาเด้งข้ามเข้าสู่หน้าแดชบอร์ดตรงๆ เลย ไม่เอากึ่งกลาง undefined แล้วครับ
+                    window.location.href = '/dashboard';
+                } else {
+                    errorBox.textContent = '⚠️ ' + result.message;
+                    errorBox.style.display = 'block';
+                }
+            } catch (err) {
+                errorBox.textContent = '⚠️ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!';
+                errorBox.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>กำลังพาลุงบุญมีเข้าหลังบ้าน...</title>
+    <script>
+        // ดักฟังความปลอดภัยกุญแจลับหน้าบ้าน
+        if (localStorage.getItem('adminToken') !== 'boonmee_secret_luxury_token_2026') {
+            window.location.href = '/login';
+        } else {
+            // แก้ไขจุดนี้ให้ถูกต้องชัวร์ 100%: พาเรียกหน้า API ดึงข้อมูลโดยตรง ไม่ใช้ตัวเปิดซ้อน
+            window.location.replace('/api/dashboard-data'); 
+        }
+    </script>
+</head>
+<body style="background-color: #f8fafc; color: #0f172a; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <div style="text-align: center;">
+        <h2 style="font-weight: 800; color: #2563eb;">🔐 กำลังตรวจสอบสิทธิ์ความปลอดภัย...</h2>
+        <p style="color: #64748B; margin-top: 8px; font-size: 14px;">กรุณารอสักครู่ ระบบกำลังนำทางลุงบุญมีเข้าสู่ระบบจัดการคิวงานหลังบ้านครับ</p>
+    </div>
+</body>
+</html>

@@ -3,165 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ลุงบุญมี รับเหมา - บริการงานช่างระดับมืออาชีพ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>ลุงบุญมี รับเหมา — ซื่อสัตย์ งานไว มั่นใจลุงบุญมี</title>
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; scroll-behavior: smooth; }
-        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
-        .hero-gradient { background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)); }
-        /* สไตล์ปุ่มกด */
-        .btn-auth { transition: all 0.3s ease; }
-        .btn-auth:hover { transform: translateY(-2px); }
+        /* Pure CSS 100% ปรับมิติขอบเงาหนาและเปลี่ยนแผง 3 การ์ดเป็นสีน้ำเงินตามสั่งครับลุง */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, "Noto Sans Thai"; background-color: #f1f5f9; color: #0f172a; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .top-bar { height: 6px; background-color: #0f172a; width: 100%; }
+
+        /* แถบเมนูนำทาง (Navbar) */
+        nav { background-color: #ffffff; padding: 18px 0; border-bottom: 1px solid #cbd5e1; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); position: sticky; top: 0; z-index: 100; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .logo { font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+        .logo span { color: #2563eb; }
+        
+        /* ปุ่มควบคุมเมนูขวาบน (เพิ่มปุ่มสมาชิกคู่กับปุ่มแอดมินตามสั่ง) */
+        .nav-actions { display: flex; align-items: center; gap: 12px; }
+        .admin-btn { padding: 10px 20px; background-color: #0f172a; border-radius: 20px; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: bold; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15); }
+        .admin-btn:hover { background-color: #1e293b; transform: translateY(-1px); }
+        .member-btn { padding: 10px 20px; background-color: #ffffff; border: 2px solid #2563eb; border-radius: 20px; color: #2563eb; text-decoration: none; font-size: 13px; font-weight: bold; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.05); }
+        .member-btn:hover { background-color: #eff6ff; transform: translateY(-1px); }
+
+        /* หน้าปกหลัก (Hero Section) */
+        .hero { padding: 90px 20px 70px 20px; text-align: center; background-color: #ffffff; border-bottom: 1px solid #e2e8f0; box-shadow: inset 0 -10px 20px rgba(0,0,0,0.01); }
+        .hero h1 { font-size: 3.8rem; font-weight: 900; color: #0f172a; margin-bottom: 14px; letter-spacing: -1px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .hero .subtitle { font-size: 22px; color: #1d4ed8; margin-bottom: 45px; font-weight: 800; letter-spacing: 0.5px; }
+        
+        .hero-buttons { display: flex; justify-content: center; gap: 16px; margin-bottom: 60px; flex-wrap: wrap; }
+        .btn-main { display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: bold; padding: 15px 32px; border-radius: 25px; text-decoration: none; font-size: 14px; box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); transition: 0.3s; }
+        .btn-main:hover { background-color: #1d4ed8; transform: translateY(-1px); }
+        .btn-sub { display: inline-block; background-color: #f8fafc; color: #334155; font-weight: bold; padding: 15px 32px; border-radius: 25px; text-decoration: none; font-size: 14px; border: 2px solid #cbd5e1; transition: 0.3s; }
+        .btn-sub:hover { background-color: #f1f5f9; border-color: #94a3b8; }
+
+        /* ปรับสีแผงการ์ด 3 ช่องเป็นสีน้ำเงินวิศวกรรม พร้อมลูกเล่นสลับสีตอนคลิกและชี้ตามสั่ง */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 20px; }
+        .feature-card { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 40px 30px; border-radius: 24px; text-align: center; border: 1px solid #1e40af; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15); transition: 0.3s; color: #ffffff; cursor: pointer; user-select: none; }
+        .feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(37, 99, 235, 0.25); background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
+        .feature-card:active { background: linear-gradient(135deg, #1e40af 0%, #172554 100%); transform: translateY(-1px); }
+        .feature-icon { margin-bottom: 18px; display: flex; justify-content: center; height: 36px; color: #ffffff; }
+        .feature-card h3 { font-size: 22px; font-weight: 900; color: #ffffff; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: #bfdbfe; font-weight: 500; }
+
+        /* ส่วนสไตล์เนื้อหาด้านล่าง */
+        .main-heading { text-align: center; margin: 80px 0 45px 0; position: relative; }
+        .main-heading h2 { font-size: 28px; font-weight: 800; color: #0f172a; }
+        .main-heading::after { content: ""; display: block; width: 60px; height: 5px; background-color: #2563eb; margin: 12px auto 0 auto; border-radius: 3px; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 60px; }
+        .service-box { background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 40px 28px; text-align: center; transition: 0.3s; color: #0f172a; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); }
+        .service-box:hover { border-color: #2563eb; transform: translateY(-4px); box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1); }
+        .service-box-icon { width: 55px; height: 55px; background-color: #eff6ff; border: 2px solid #bfdbfe; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; color: #2563eb; }
+        .service-box h3 { font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+        .service-box p { font-size: 14px; color: #475569; line-height: 1.6; font-weight: 500; }
+
+        /* ส่วนของรายการคิวงานและกล่องบันทึกข้อความความเห็นล่าสุด */
+        .pipeline-section { background-color: #ffffff; padding: 50px 30px; border-radius: 24px; border: 1px solid #cbd5e1; margin: 60px 0; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); }
+        .pipeline-title { text-align: center; font-size: 26px; font-weight: 800; color: #0f172a; margin-bottom: 40px; }
+        .pipeline-item { display: flex; flex-direction: column; padding: 24px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 16px; border-left: 5px solid #2563eb; transition: 0.3s; }
+        @media (min-width: 768px) { .pipeline-item { flex-direction: row; justify-content: space-between; align-items: center; } }
+        .job-tag { display: inline-block; font-size: 11px; font-weight: 800; background-color: #e2e8f0; color: #1e293b; padding: 4px 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #cbd5e1; }
+        .job-name { font-size: 18px; font-weight: 800; color: #0f172a; }
+        .job-detail { font-size: 14px; color: #475569; margin-top: 6px; font-weight: 500; }
+        
+        /* สไตล์กล่องความเห็นล่าสุดประจำการ์ดงานชิ้นนั้น ๆ ที่เพิ่มเข้าล็อกใหม่ */
+        .comment-display-box { margin-top: 14px; padding: 12px 16px; background-color: #eff6ff; border: 1px dashed #bfdbfe; border-radius: 10px; font-size: 13px; color: #1e40af; font-weight: 600; display: flex; align-items: flex-start; gap: 6px; }
+        
+        .badge { padding: 6px 18px; font-size: 11px; font-weight: 800; border-radius: 30px; display: inline-flex; align-items: center; gap: 6px; height: fit-content; }
+        .badge-pending { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+        .badge-progress { background-color: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+        .badge-completed { background-color: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
+
+        section { margin: 80px 0; }
+        .section-title { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; }
+        .section-title::before { content: ""; display: inline-block; width: 4px; height: 22px; background-color: #2563eb; border-radius: 2px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .card { padding: 28px; border-radius: 16px; background-color: #ffffff; border: 1px solid #cbd5e1; transition: 0.3s; }
+        .card:hover { border-color: #2563eb; box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06); }
+        .card h3 { font-size: 18px; color: #1d4ed8; margin-bottom: 12px; font-weight: 800; }
+        .card p { color: #334155; font-size: 14px; margin-bottom: 20px; white-space: pre-line; font-weight: 500; }
+        .card-footer { font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 14px; font-weight: 600; }
+
+        .form-box { max-width: 650px; margin: 60px auto; padding: 45px; background-color: #ffffff; border-radius: 24px; box-shadow: 0 20px 45px rgba(15, 23, 42, 0.1); border: 1px solid #cbd5e1; }
+        .form-title { text-align: center; margin-bottom: 35px; }
+        .form-title h2 { font-size: 26px; color: #0f172a; font-weight: 800; }
+        .form-title p { font-size: 14px; color: #475569; margin-top: 6px; font-weight: 500; }
+        .form-row { display: flex; gap: 20px; width: 100%; margin-bottom: 20px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 14px; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; color: #0f172a; font-size: 14px; outline: none; transition: 0.3s; font-weight: 500; }
+        .form-control:focus { border-color: #2563eb; }
+
+        .subscribe-box { background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 12px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: bold; color: #0369a1; }
+        .subscribe-box input[type="checkbox"] { width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer; }
+
+        .btn-submit { width: 100%; background-color: #0f172a; color: #ffffff; font-weight: bold; padding: 16px; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; letter-spacing: 0.5px; transition: 0.3s; box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15); text-align: center; }
+        .btn-submit:hover { background-color: #1e293b; transform: translateY(-0.5px); }
+        
+        footer { text-align: center; padding: 40px 0; color: #64748b; font-size: 12px; border-top: 1px solid #cbd5e1; margin-top: 100px; font-weight: 600; }
+        @media (max-width: 600px) { .form-row { flex-direction: column; gap: 20px; } }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
+    <!-- TOP DECORATION BAR -->
+    <div class="top-bar"></div>
 
-    <div class="fixed top-5 right-5 z-50 flex gap-3">
-        <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
-            <a href="/dashboard" class="glass btn-auth px-5 py-2 rounded-full text-sm font-semibold border border-amber-500/50 text-amber-700 shadow-lg">
-                🏠 ไปที่หลังบ้าน
-            </a>
-            <a href="/logout" class="bg-red-500/90 hover:bg-red-600 btn-auth px-5 py-2 rounded-full text-sm font-semibold text-white shadow-lg">
-                ออกจากระบบ
-            </a>
-        <% } else { %>
-            <a href="/login" class="glass btn-auth px-5 py-2 rounded-full text-sm font-semibold border border-slate-300 text-slate-600 shadow-lg">
-                🔑 เข้าสู่ระบบ
-            </a>
-        <% } %>
+    <!-- NAVBAR -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #2563eb; margin-right: 2px;"><path d="M2 12a10 10 0 0 1 20 0M12 2v10M12 12H2m10 0h10M6 6.5a10 10 0 0 1 12 0"/></svg>
+                ลุงบุญมี <span>รับเหมา</span>
+            </div>
+            
+            <div class="nav-actions">
+                <a href="/login" class="member-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+                    เข้าสู่ระบบสมาชิก
+                </a>
+                <a href="/login" class="admin-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    เข้าสู่ระบบแอดมิน
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <div class="hero">
+        <h1> 👷‍♂️ ลุงบุญมี รับเหมา 🛠️</h1>
+        <div class="subtitle">ซื่อสัตย์ งานไว มั่นใจลุงบุญมี</div>
+        
+        <div class="hero-buttons">
+            <a href="#quote" class="btn-main">ส่งใบแจ้งงาน / ประเมินราคา</a>
+            <a href="#services-section" class="btn-sub">ดูบริการของเรา</a>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3>ซื่อสัตย์</h3>
+                <p>ไม่ทิ้งงาน ไม่บวกราคาเพิ่ม</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <h3>งานไว</h3>
+                <p>เสร็จตามนัด เข้างานตรงเวลา</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <h3>ราคาเป็นกันเอง</h3>
+                <p>คุยง่าย ปรึกษาฟรีทุกงาน</p>
+            </div>
+        </div>
     </div>
 
-    <header class="relative h-[70vh] flex items-center justify-center text-white overflow-hidden bg-slate-900">
-        <div class="absolute inset-0">
-            <img src="/images/hero-bg.jpg" alt="Construction Work" class="w-full h-full object-cover">
-            <div class="absolute inset-0 hero-gradient"></div>
+    <div class="container">
+        <!-- SECTION 0: บริการของลุงบุญมี รับเหมา -->
+        <div id="services-section" class="main-heading">
+            <h2>บริการของลุงบุญมี รับเหมา</h2>
         </div>
-        <div class="relative z-10 text-center px-4">
-            <h1 class="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg text-amber-500">ลุงบุญมี รับเหมา</h1>
-            <p class="text-xl md:text-2xl font-light mb-8 opacity-95 tracking-wide">ซื่อสัตย์ งานไว มั่นใจลุงบุญมี</p>
-            <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <a href="#request-form" class="bg-amber-500 hover:bg-amber-600 text-white px-10 py-4 rounded-full font-semibold transition-all shadow-xl hover:scale-105">
-                    ส่งใบแจ้งงาน / ประเมินราคา
-                </a>
-                <a href="#services" class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-10 py-4 rounded-full font-semibold transition-all border border-white/30">
-                    ดูบริการของเรา
-                </a>
-            </div>
-        </div>
-    </header>
 
-    <section class="relative z-20 -mt-10 max-w-5xl mx-auto px-4">
-        <div class="bg-amber-500 rounded-3xl shadow-2xl flex flex-wrap justify-around items-center text-slate-900 py-10 px-6">
-            <div class="text-center p-4">
-                <div class="text-3xl mb-2">🤝</div>
-                <h4 class="text-2xl font-bold">ซื่อสัตย์</h4>
-                <p class="text-slate-900/80">ไม่ทิ้งงาน ไม่บวกราคาเพิ่ม</p>
+        <div class="services-grid">
+            <div class="service-box">
+                <div class="service-box-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <h3>งานโครงสร้าง/ต่อเติม</h3>
+                <p>รับเหมาต่อเติมบ้าน ห้องครัว โรงรถ และงานปูนฐานรากทุกชนิด ด้วยทีมช่างฝีมือ</p>
             </div>
-            <div class="text-center p-4 md:border-x border-slate-900/10 px-12">
-                <div class="text-3xl mb-2">⚡</div>
-                <h4 class="text-2xl font-bold">งานไว</h4>
-                <p class="text-slate-900/80">เสร็จตามนัด เข้างานตรงเวลา</p>
+            <div class="service-box">
+                <div class="service-box-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h3>งานหลังคา/เหล็ก</h3>
+                <p>มุงหลังคาใหม่ ซ่อมรอยรั่ว งานโครงเหล็กโรงจอดรถ แข็งแรงทนทานตามมาตรฐาน</p>
             </div>
-            <div class="text-center p-4">
-                <div class="text-3xl mb-2">💰</div>
-                <h4 class="text-2xl font-bold">ราคากันเอง</h4>
-                <p class="text-slate-900/80">คุยง่าย ปรึกษาฟรีทุกงาน</p>
+            <div class="service-box">
+                <div class="service-box-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+                <h3>ซ่อมแซมทั่วไป</h3>
+                <p>แก้ปัญหาน้ำรั่ว ไฟเสีย ทาสีผนังใหม่ หรือปรับปรุงห้องน้ำ เรียกหาลุงบุญมีได้ตลอดครับ</p>
             </div>
         </div>
-    </section>
 
-    <section id="services" class="max-w-6xl mx-auto py-20 px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold mb-4">บริการระดับมืออาชีพ</h2>
-            <div class="w-24 h-1 bg-amber-500 mx-auto rounded-full"></div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-3xl card-shadow border border-slate-100 hover:border-amber-500 transition-colors group">
-                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-amber-500 transition-colors">🏠</div>
-                <h3 class="text-2xl font-bold mb-3">งานโครงสร้าง/ต่อเติม</h3>
-                <p class="text-slate-500 leading-relaxed">รับเหมาต่อเติมบ้าน ห้องครัว โรงรถ และงานปูนฐานรากทุกชนิด ด้วยทีมช่างฝีมือ</p>
-            </div>
-            <div class="bg-white p-8 rounded-3xl card-shadow border border-slate-100 hover:border-amber-500 transition-colors group">
-                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-amber-500 transition-colors">🏗️</div>
-                <h3 class="text-2xl font-bold mb-3">งานหลังคา/เหล็ก</h3>
-                <p class="text-slate-500 leading-relaxed">มุงหลังคาใหม่ ซ่อมรอยรั่ว งานโครงเหล็กโรงจอดรถ แข็งแรงทนทานตามมาตรฐาน</p>
-            </div>
-            <div class="bg-white p-8 rounded-3xl card-shadow border border-slate-100 hover:border-amber-500 transition-colors group">
-                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-amber-500 transition-colors">🛠️</div>
-                <h3 class="text-2xl font-bold mb-3">ซ่อมแซมทั่วไป</h3>
-                <p class="text-slate-500 leading-relaxed">แก้น้ำรั่ว ไฟเสีย ทาสีผนังใหม่ หรือปรับปรุงห้องน้ำ เรียกหาลุงบุญมีได้ตลอดครับ</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="bg-slate-900 py-20 px-4">
-        <div class="max-w-6xl mx-auto">
-            <h2 class="text-3xl font-bold text-center text-white mb-12">คิวงานที่กำลังดำเนินการ</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <% if (typeof queue !== 'undefined' && queue.length > 0) { %>
-                    <% queue.forEach(job => { %>
-                        <div class="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10">
-                            <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider
-                                <%= job.status === 'In-Progress' ? 'bg-blue-500/20 text-blue-400' : 
-                                   job.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400' %>">
+        <!-- SECTION 2: คิวงานที่กำลังดำเนินการ (🌟 แปลงสถานะเป็นภาษาไทย และฝังกล่องความเห็นล่าสุดเรียบร้อยครับ) -->
+        <div class="pipeline-section" id="pipeline">
+            <div class="pipeline-title">คิวงานที่กำลังดำเนินการ</div>
+            <div>
+                <% if (jobs && jobs.length > 0) { %>
+                    <% jobs.forEach(job => { %>
+                        <div class="pipeline-item">
+                            <div style="flex: 1;">
+                                <span class="job-tag"><%= job.service_type || 'งานทั่วไป' %></span>
+                                <div class="job-name">คุณ <%= job.customer_name %></div>
+                                <div class="job-detail">ลักษณะงาน: <%= job.detail || 'ซ่อมแซมต่อเติมโครงสร้างอาคาร' %></div>
                                 
-                                <% if (job.status === 'In-Progress') { %> กำลังดำเนินการ <% } 
-                                   else if (job.status === 'Completed') { %> เสร็จเรียบร้อย <% } 
-                                   else { %> รอคิว <% } %>
-                            </span>
-                            <h3 class="text-xl font-semibold mt-4 mb-2 text-white"><%= job.detail %></h3>
-                            <p class="text-white/50 text-sm">ลูกค้า: <%= job.customer_name %></p>
+                                <!-- บล็อกแสดงบันทึกข้อความความเห็นความคืบหน้าล่าสุดจากช่างลุงบุญมี -->
+                                <div class="comment-display-box">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-top:2px; shrink: 0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                    <div>
+                                        <strong>บันทึกจากช่าง:</strong> <%= job.last_comment %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; text-align: right;">
+                                <!-- แสดงผลป้ายสถานะเป็นภาษาไทยและอีโมจิสัมพันธ์ตามที่ลุงกำหนดในฝั่งเซิร์ฟเวอร์ -->
+                                <% if (job.thai_status === '⏳ รอคิว') { %>
+                                    <span class="badge badge-pending"><%= job.thai_status %></span>
+                                <% } else if (job.thai_status === '⚡ กำลังทำ') { %>
+                                    <span class="badge badge-progress"><%= job.thai_status %></span>
+                                <% } else if (job.thai_status === '✅ เสร็จสิ้น') { %>
+                                    <span class="badge badge-completed"><%= job.thai_status %></span>
+                                <% } else { %>
+                                    <span class="badge" style="background-color:#e2e8f0; color:#475569;"><%= job.thai_status %></span>
+                                <% } %>
+                            </div>
                         </div>
-                    <% }); %>
+                    <% }) %>
                 <% } else { %>
-                    <div class="col-span-full text-center text-white/40 py-10 border border-dashed border-white/20 rounded-2xl">
-                        ยังไม่มีคิวงานในขณะนี้ครับ
-                    </div>
+                    <div style="text-align: center; color: #94a3b8; padding: 20px 0; font-weight: 500; font-size: 14px;">ยังไม่มีข้อมูลคิวงานจัดเก็บในระบบคิวงานโปรเจกต์ครับ</div>
                 <% } %>
             </div>
         </div>
-    </section>
 
-    <section id="request-form" class="py-20 px-4">
-        <div class="max-w-2xl mx-auto">
-            <div class="glass p-10 rounded-[2.5rem] card-shadow border border-white">
-                <div class="text-center mb-8">
-                    <h2 class="text-4xl font-bold mb-2 text-slate-900">แจ้งงานใหม่</h2>
-                    <p class="text-slate-500">กรอกรายละเอียดเพื่อให้ลุงประเมินราคาฟรี</p>
+        <!-- SECTION 1: ข่าวสารและประกาศล่าสุดจากลุงบุญมี -->
+        <section id="announcements">
+            <div class="section-title">ข่าวสารและประกาศล่าสุดจากลุงบุญมี</div>
+            <div class="grid-cards">
+                <% if (announcements && announcements.length > 0) { %>
+                    <% announcements.forEach(item => { %>
+                        <div class="card">
+                            <h3><%= item.title %></h3>
+                            <!-- รองรับสไตล์ข้อความและลูกเล่น Rich Text จากเครื่องมือแอดมินใหม่ของลุงด้วยเครื่องหมายลบด้านหน้าแท็ก -->
+                            <p><%- item.content %></p>
+                            <div class="card-footer">🔔 วันที่ประกาศ: <%= new Date(item.updated_at || item.created_at).toLocaleDateString('th-TH') %></div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div style="text-align: center; color: #94a3b8; padding: 40px 0; width: 100%; grid-column: 1/-1; font-size: 14px;">ไม่มีประกาศหรือกิจกรรมใหม่ในขณะนี้ครับลุง</div>
+                <% } %>
+            </div>
+        </section>
+
+        <!-- SECTION 3: ฟอร์มแจ้งงานใหม่ -->
+        <section id="quote">
+            <div class="form-box">
+                <div class="form-title">
+                    <h2>แจ้งงานใหม่</h2>
+                    <p>กรอกรายละเอียดเพื่อให้ลุงประเมินราคาฟรี</p>
                 </div>
-                <form action="/api/report-job" method="POST" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">ชื่อของคุณ</label>
-                            <input type="text" name="customer_name" required class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all" placeholder="คุณสมชาย">
+                <form id="jobForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ชื่อของคุณ</label>
+                            <input type="text" name="customer_name" required class="form-control" placeholder="คุณสมชาย">
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold mb-2">เบอร์โทรศัพท์</label>
-                            <input type="tel" name="phone" required class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all" placeholder="08x-xxxxxxx">
+                        <div class="form-group">
+                            <label>เบอร์โทรศัพท์</label>
+                            <input type="tel" name="phone" required class="form-control" placeholder="08X-XXXXXXX">
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">รายละเอียดงาน</label>
-                        <textarea name="detail" rows="4" required class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all" placeholder="เช่น ทาสีห้องนอน..."></textarea>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>ประเภทงานรับเหมา</label>
+                        <select name="service_type" class="form-control" style="background-color: #ffffff;">
+                            <option value="งานโครงสร้าง/ต่อเติม">งานโครงสร้าง / ต่อเติมบ้าน</option>
+                            <option value="งานหลังคา/เหล็ก">งานหลังคา / โครงเหล็ก</option>
+                            <option value="ซ่อมแซมทั่วไป">งานปรับปรุงและซ่อมแซมทั่วไป</option>
+                        </select>
                     </div>
-                    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100">
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" name="is_member" class="w-6 h-6 rounded-lg accent-amber-500 border-amber-300">
-                            <span class="text-sm font-bold text-amber-900">สมัครสมาชิกเพื่อรับข่าวสารและติดตามสถานะงาน</span>
-                        </label>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>รายละเอียดงาน</label>
+                        <textarea name="detail" rows="4" required class="form-control" placeholder="เช่น ทาสีห้องนอนขนาด 4x4 เมตร..."></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all shadow-2xl hover:scale-[1.02] active:scale-95">
-                        ส่งข้อมูลให้ลุงบุญมี
-                    </button>
+                    
+                    <div class="subscribe-box">
+                        <input type="checkbox" name="is_member" id="is_member" value="true" checked>
+                        <label style="cursor:pointer;" for="is_member">สมัครสมาชิกเพื่อรับข่าวสารและติดตามสถานะงาน</label>
+                    </div>
+
+                    <button type="submit" class="btn-submit">ส่งข้อมูลให้ลุงบุญมี</button>
                 </form>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
-    <footer class="bg-slate-900 py-10 text-center text-white/40 text-sm">
-        <p>&copy; 2026 ลุงบุญมี รับเหมา - ซื่อสัตย์ งานไว ราคากันเอง</p>
+    <footer>
+        <p>© 2026 ลุงบุญมี รับเหมา — ALL RIGHTS RESERVED</p>
     </footer>
+
+    <script>
+        document.getElementById('jobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.is_member = document.getElementById('is_member').checked;
+
+            try {
+                const res = await fetch('/api/jobs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('ส่งข้อมูลให้ลุงบุญมีสำเร็จ! ลุงได้รับเรื่องแล้วและจะรีบติดต่อกลับหาคุณโดยเร็วที่สุดครับ');
+                    e.target.reset();
+                    // อัปเดตข้ามแคชดึงหน้าจอใหม่ล่าสุดสด ๆ จาก Supabase ทันที
+                    window.location.href = window.location.pathname + '?r=' + Date.now();
+                } else { alert('เกิดข้อผิดพลาด: ' + result.error); }
+            } catch (err) { alert('ไม่สามารถเชื่อมต่อระบบหลังบ้านได้ในขณะนี้'); }
+        });
+    </script>
 </body>
 </html>
